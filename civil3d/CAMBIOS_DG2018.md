@@ -9,6 +9,8 @@ Normas de diseño de Autodesk Civil 3D (`Civil3DRoadwayDesignStandards`) ajustad
 | `DG2018_original.xml` | Archivo de partida, sin cambios |
 | `DG2018_Corregido.xml` | Archivo corregido, listo para importar |
 | `generar_dg2018_corregido.py` | Script que produce el corregido a partir del original (requiere `lxml`) |
+| `Reporte_Trazabilidad_DG2018.pdf` | Reporte de cambios con cita a la DG-2018 (tabla o tópico y página) |
+| `generar_reporte_trazabilidad.py` | Script que produce el reporte PDF a partir de los dos XML (requiere `reportlab`) |
 
 ```
 python3 generar_dg2018_corregido.py DG2018_original.xml DG2018_Corregido.xml
