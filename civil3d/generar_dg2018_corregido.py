@@ -52,11 +52,13 @@ R_CONTRAPERALTE = {60: 1000, 70: 1000, 80: 1200, 90: 1600, 100: 2000,
 def radios_nc_rc(v):
     """Bombeo normal (NC) y peralte mínimo de 2% (RC), Tablas 304.04 y 304.06.
 
-    Para V < 60 km/h no hay fila NC: el Tópico 302.04.04 prohíbe el
-    contraperalte.
+    Para V < 60 km/h no hay fila NC (el Tópico 302.04.04 prohíbe el
+    contraperalte) y el 2% se extiende hasta 3,500 m (Tabla 304.04), para que
+    el resultado no dependa de cómo trate Civil 3D los radios mayores que el
+    de la primera fila.
     """
     if v < 60:
-        return None, None
+        return None, 3500
     if v < 100:
         return 3500, 2500
     return 7500, 5000
@@ -251,7 +253,7 @@ def corregir_peraltes(root):
             for fila in filas:
                 if fila[0] == "NC" and nc:
                     fila[1] = nc
-                elif fila[0] == "RC" and rc:
+                elif fila[0] in ("RC", "2.0") and rc:  # 4% a 30 km/h usa "2.0"
                     fila[1] = rc
             if v < 60 and filas[0][0] == "NC":
                 filas = filas[1:]

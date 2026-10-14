@@ -147,7 +147,7 @@
 			<SuperelevationTable name="DG2018 _PMax 4%">
 				<SuperelevationTypeByTable>
 					<SuperelevationDesignSpeed speed="30">
-						<SuperelevationRate radius="248" eRate="2.0"/>
+						<SuperelevationRate radius="3500" eRate="2.0"/>
 						<SuperelevationRate radius="206" eRate="2.2"/>
 						<SuperelevationRate radius="169" eRate="2.4"/>
 						<SuperelevationRate radius="140" eRate="2.6"/>
@@ -160,7 +160,7 @@
 						<SuperelevationRate radius="35" eRate="4.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="40">
-						<SuperelevationRate radius="441" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="396" eRate="2.2"/>
 						<SuperelevationRate radius="328" eRate="2.4"/>
 						<SuperelevationRate radius="269" eRate="2.6"/>
@@ -173,7 +173,7 @@
 						<SuperelevationRate radius="60" eRate="4.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="50">
-						<SuperelevationRate radius="632" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="562" eRate="2.2"/>
 						<SuperelevationRate radius="477" eRate="2.4"/>
 						<SuperelevationRate radius="412" eRate="2.6"/>
@@ -301,7 +301,7 @@
 						<TransitionLengthTable name="2 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="248" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="206" tLength="11"/>
 									<TransitionLength radius="169" tLength="12"/>
 									<TransitionLength radius="140" tLength="12"/>
@@ -314,7 +314,7 @@
 									<TransitionLength radius="35" tLength="19"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="441" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="396" tLength="11"/>
 									<TransitionLength radius="328" tLength="12"/>
 									<TransitionLength radius="269" tLength="13"/>
@@ -327,7 +327,7 @@
 									<TransitionLength radius="60" tLength="21"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="632" tLength="11"/>
+									<TransitionLength radius="3500" tLength="11"/>
 									<TransitionLength radius="562" tLength="12"/>
 									<TransitionLength radius="477" tLength="13"/>
 									<TransitionLength radius="412" tLength="14"/>
@@ -456,7 +456,7 @@
 						<TransitionLengthTable name="4 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="248" tLength="14"/>
+									<TransitionLength radius="3500" tLength="14"/>
 									<TransitionLength radius="206" tLength="16"/>
 									<TransitionLength radius="169" tLength="17"/>
 									<TransitionLength radius="140" tLength="19"/>
@@ -469,7 +469,7 @@
 									<TransitionLength radius="35" tLength="29"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="441" tLength="15"/>
+									<TransitionLength radius="3500" tLength="15"/>
 									<TransitionLength radius="396" tLength="17"/>
 									<TransitionLength radius="328" tLength="19"/>
 									<TransitionLength radius="269" tLength="20"/>
@@ -482,7 +482,7 @@
 									<TransitionLength radius="60" tLength="31"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="632" tLength="17"/>
+									<TransitionLength radius="3500" tLength="17"/>
 									<TransitionLength radius="562" tLength="18"/>
 									<TransitionLength radius="477" tLength="20"/>
 									<TransitionLength radius="412" tLength="22"/>
@@ -614,7 +614,7 @@
 			<SuperelevationTable name="DG2018 _PMax 6%">
 				<SuperelevationTypeByTable>
 					<SuperelevationDesignSpeed speed="30">
-						<SuperelevationRate radius="299" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="286" eRate="2.2"/>
 						<SuperelevationRate radius="259" eRate="2.4"/>
 						<SuperelevationRate radius="231" eRate="2.6"/>
@@ -637,7 +637,7 @@
 						<SuperelevationRate radius="30" eRate="6.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="40">
-						<SuperelevationRate radius="525" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="517" eRate="2.2"/>
 						<SuperelevationRate radius="469" eRate="2.4"/>
 						<SuperelevationRate radius="420" eRate="2.6"/>
@@ -660,7 +660,7 @@
 						<SuperelevationRate radius="55" eRate="6.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="50">
-						<SuperelevationRate radius="750" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="664" eRate="2.2"/>
 						<SuperelevationRate radius="627" eRate="2.4"/>
 						<SuperelevationRate radius="571" eRate="2.6"/>
@@ -878,7 +878,7 @@
 						<TransitionLengthTable name="2 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="299" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="286" tLength="11"/>
 									<TransitionLength radius="259" tLength="12"/>
 									<TransitionLength radius="231" tLength="12"/>
@@ -901,7 +901,7 @@
 									<TransitionLength radius="30" tLength="29"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="525" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="517" tLength="11"/>
 									<TransitionLength radius="469" tLength="12"/>
 									<TransitionLength radius="420" tLength="13"/>
@@ -924,7 +924,7 @@
 									<TransitionLength radius="55" tLength="31"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="750" tLength="11"/>
+									<TransitionLength radius="3500" tLength="11"/>
 									<TransitionLength radius="664" tLength="12"/>
 									<TransitionLength radius="627" tLength="13"/>
 									<TransitionLength radius="571" tLength="14"/>
@@ -1143,7 +1143,7 @@
 						<TransitionLengthTable name="4 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="299" tLength="14"/>
+									<TransitionLength radius="3500" tLength="14"/>
 									<TransitionLength radius="286" tLength="16"/>
 									<TransitionLength radius="259" tLength="17"/>
 									<TransitionLength radius="231" tLength="19"/>
@@ -1166,7 +1166,7 @@
 									<TransitionLength radius="30" tLength="43"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="525" tLength="15"/>
+									<TransitionLength radius="3500" tLength="15"/>
 									<TransitionLength radius="517" tLength="17"/>
 									<TransitionLength radius="469" tLength="19"/>
 									<TransitionLength radius="420" tLength="20"/>
@@ -1189,7 +1189,7 @@
 									<TransitionLength radius="55" tLength="46"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="750" tLength="17"/>
+									<TransitionLength radius="3500" tLength="17"/>
 									<TransitionLength radius="664" tLength="18"/>
 									<TransitionLength radius="627" tLength="20"/>
 									<TransitionLength radius="571" tLength="22"/>
@@ -1411,7 +1411,7 @@
 			<SuperelevationTable name="DG2018 _PMax 8%">
 				<SuperelevationTypeByTable>
 					<SuperelevationDesignSpeed speed="30">
-						<SuperelevationRate radius="322" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="294" eRate="2.2"/>
 						<SuperelevationRate radius="275" eRate="2.4"/>
 						<SuperelevationRate radius="253" eRate="2.6"/>
@@ -1444,7 +1444,7 @@
 						<SuperelevationRate radius="30" eRate="8.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="40">
-						<SuperelevationRate radius="571" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="510" eRate="2.2"/>
 						<SuperelevationRate radius="477" eRate="2.4"/>
 						<SuperelevationRate radius="449" eRate="2.6"/>
@@ -1477,7 +1477,7 @@
 						<SuperelevationRate radius="50" eRate="8.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="50">
-						<SuperelevationRate radius="791" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="700" eRate="2.2"/>
 						<SuperelevationRate radius="657" eRate="2.4"/>
 						<SuperelevationRate radius="612" eRate="2.6"/>
@@ -1785,7 +1785,7 @@
 						<TransitionLengthTable name="2 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="322" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="294" tLength="11"/>
 									<TransitionLength radius="275" tLength="12"/>
 									<TransitionLength radius="253" tLength="12"/>
@@ -1818,7 +1818,7 @@
 									<TransitionLength radius="30" tLength="38"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="571" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="510" tLength="11"/>
 									<TransitionLength radius="477" tLength="12"/>
 									<TransitionLength radius="449" tLength="13"/>
@@ -1851,7 +1851,7 @@
 									<TransitionLength radius="50" tLength="41"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="791" tLength="11"/>
+									<TransitionLength radius="3500" tLength="11"/>
 									<TransitionLength radius="700" tLength="12"/>
 									<TransitionLength radius="657" tLength="13"/>
 									<TransitionLength radius="612" tLength="14"/>
@@ -2160,7 +2160,7 @@
 						<TransitionLengthTable name="4 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="322" tLength="14"/>
+									<TransitionLength radius="3500" tLength="14"/>
 									<TransitionLength radius="294" tLength="16"/>
 									<TransitionLength radius="275" tLength="17"/>
 									<TransitionLength radius="253" tLength="19"/>
@@ -2193,7 +2193,7 @@
 									<TransitionLength radius="30" tLength="58"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="571" tLength="15"/>
+									<TransitionLength radius="3500" tLength="15"/>
 									<TransitionLength radius="510" tLength="17"/>
 									<TransitionLength radius="477" tLength="19"/>
 									<TransitionLength radius="449" tLength="20"/>
@@ -2226,7 +2226,7 @@
 									<TransitionLength radius="50" tLength="62"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="791" tLength="17"/>
+									<TransitionLength radius="3500" tLength="17"/>
 									<TransitionLength radius="700" tLength="18"/>
 									<TransitionLength radius="657" tLength="20"/>
 									<TransitionLength radius="612" tLength="22"/>
@@ -2538,7 +2538,7 @@
 			<SuperelevationTable name="DG2018 _PMax 10%">
 				<SuperelevationTypeByTable>
 					<SuperelevationDesignSpeed speed="30">
-						<SuperelevationRate radius="330" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="298" eRate="2.2"/>
 						<SuperelevationRate radius="271" eRate="2.4"/>
 						<SuperelevationRate radius="248" eRate="2.6"/>
@@ -2581,7 +2581,7 @@
 						<SuperelevationRate radius="26" eRate="10.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="40">
-						<SuperelevationRate radius="587" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="530" eRate="2.2"/>
 						<SuperelevationRate radius="482" eRate="2.4"/>
 						<SuperelevationRate radius="441" eRate="2.6"/>
@@ -2624,7 +2624,7 @@
 						<SuperelevationRate radius="47" eRate="10.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="50">
-						<SuperelevationRate radius="817" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="738" eRate="2.2"/>
 						<SuperelevationRate radius="672" eRate="2.4"/>
 						<SuperelevationRate radius="616" eRate="2.6"/>
@@ -3022,7 +3022,7 @@
 						<TransitionLengthTable name="2 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="330" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="298" tLength="11"/>
 									<TransitionLength radius="271" tLength="12"/>
 									<TransitionLength radius="248" tLength="12"/>
@@ -3065,7 +3065,7 @@
 									<TransitionLength radius="26" tLength="48"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="587" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="530" tLength="11"/>
 									<TransitionLength radius="482" tLength="12"/>
 									<TransitionLength radius="441" tLength="13"/>
@@ -3108,7 +3108,7 @@
 									<TransitionLength radius="47" tLength="51"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="817" tLength="11"/>
+									<TransitionLength radius="3500" tLength="11"/>
 									<TransitionLength radius="738" tLength="12"/>
 									<TransitionLength radius="672" tLength="13"/>
 									<TransitionLength radius="616" tLength="14"/>
@@ -3507,7 +3507,7 @@
 						<TransitionLengthTable name="4 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="330" tLength="14"/>
+									<TransitionLength radius="3500" tLength="14"/>
 									<TransitionLength radius="298" tLength="16"/>
 									<TransitionLength radius="271" tLength="17"/>
 									<TransitionLength radius="248" tLength="19"/>
@@ -3550,7 +3550,7 @@
 									<TransitionLength radius="26" tLength="72"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="587" tLength="15"/>
+									<TransitionLength radius="3500" tLength="15"/>
 									<TransitionLength radius="530" tLength="17"/>
 									<TransitionLength radius="482" tLength="19"/>
 									<TransitionLength radius="441" tLength="20"/>
@@ -3593,7 +3593,7 @@
 									<TransitionLength radius="47" tLength="77"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="817" tLength="17"/>
+									<TransitionLength radius="3500" tLength="17"/>
 									<TransitionLength radius="738" tLength="18"/>
 									<TransitionLength radius="672" tLength="20"/>
 									<TransitionLength radius="616" tLength="22"/>
@@ -3995,7 +3995,7 @@
 			<SuperelevationTable name="DG2018 _PMax 12%">
 				<SuperelevationTypeByTable>
 					<SuperelevationDesignSpeed speed="30">
-						<SuperelevationRate radius="338" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="308" eRate="2.2"/>
 						<SuperelevationRate radius="287" eRate="2.4"/>
 						<SuperelevationRate radius="265" eRate="2.6"/>
@@ -4048,7 +4048,7 @@
 						<SuperelevationRate radius="25" eRate="12.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="40">
-						<SuperelevationRate radius="594" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="543" eRate="2.2"/>
 						<SuperelevationRate radius="507" eRate="2.4"/>
 						<SuperelevationRate radius="470" eRate="2.6"/>
@@ -4101,7 +4101,7 @@
 						<SuperelevationRate radius="45" eRate="12.0"/>
 					</SuperelevationDesignSpeed>
 					<SuperelevationDesignSpeed speed="50">
-						<SuperelevationRate radius="835" eRate="RC"/>
+						<SuperelevationRate radius="3500" eRate="RC"/>
 						<SuperelevationRate radius="784" eRate="2.2"/>
 						<SuperelevationRate radius="733" eRate="2.4"/>
 						<SuperelevationRate radius="682" eRate="2.6"/>
@@ -4589,7 +4589,7 @@
 						<TransitionLengthTable name="2 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="338" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="308" tLength="11"/>
 									<TransitionLength radius="287" tLength="12"/>
 									<TransitionLength radius="265" tLength="12"/>
@@ -4642,7 +4642,7 @@
 									<TransitionLength radius="25" tLength="58"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="594" tLength="10"/>
+									<TransitionLength radius="3500" tLength="10"/>
 									<TransitionLength radius="543" tLength="11"/>
 									<TransitionLength radius="507" tLength="12"/>
 									<TransitionLength radius="470" tLength="13"/>
@@ -4695,7 +4695,7 @@
 									<TransitionLength radius="45" tLength="62"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="835" tLength="11"/>
+									<TransitionLength radius="3500" tLength="11"/>
 									<TransitionLength radius="784" tLength="12"/>
 									<TransitionLength radius="733" tLength="13"/>
 									<TransitionLength radius="682" tLength="14"/>
@@ -5184,7 +5184,7 @@
 						<TransitionLengthTable name="4 Lane">
 							<TransitionLengthTypeByTable>
 								<TransitionLengthDesignSpeed speed="30">
-									<TransitionLength radius="338" tLength="14"/>
+									<TransitionLength radius="3500" tLength="14"/>
 									<TransitionLength radius="308" tLength="16"/>
 									<TransitionLength radius="287" tLength="17"/>
 									<TransitionLength radius="265" tLength="19"/>
@@ -5237,7 +5237,7 @@
 									<TransitionLength radius="25" tLength="86"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="40">
-									<TransitionLength radius="594" tLength="15"/>
+									<TransitionLength radius="3500" tLength="15"/>
 									<TransitionLength radius="543" tLength="17"/>
 									<TransitionLength radius="507" tLength="19"/>
 									<TransitionLength radius="470" tLength="20"/>
@@ -5290,7 +5290,7 @@
 									<TransitionLength radius="45" tLength="93"/>
 								</TransitionLengthDesignSpeed>
 								<TransitionLengthDesignSpeed speed="50">
-									<TransitionLength radius="835" tLength="17"/>
+									<TransitionLength radius="3500" tLength="17"/>
 									<TransitionLength radius="784" tLength="18"/>
 									<TransitionLength radius="733" tLength="20"/>
 									<TransitionLength radius="682" tLength="22"/>

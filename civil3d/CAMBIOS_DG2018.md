@@ -49,12 +49,14 @@ python3 generar_dg2018_corregido.py DG2018_original.xml DG2018_Corregido.xml
 
 | Velocidad | NC (sin peralte desde) | RC (2% desde) |
 |---|---|---|
-| < 60 km/h | Fila eliminada: no se permite contraperalte (Tópico 302.04.04) | Sin cambio |
+| < 60 km/h | Fila eliminada: no se permite contraperalte (Tópico 302.04.04) | 3,500 m (en 4% a 30 km/h, la fila `2.0`) |
 | 60–90 km/h | 3,500 m | 2,500 m |
 | 100–130 km/h | 7,500 m | 5,000 m |
 
 90 km/h queda en el grupo de 3,500/2,500 m porque la Tabla 304.06 lo incluye
-expresamente en el rango 40 ≤ V < 100 km/h. Entre RC y el escalón de 2.2% el
+expresamente en el rango 40 ≤ V < 100 km/h. Por debajo de 60 km/h, la fila RC se
+lleva a 3,500 m para que las curvas menores que ese radio reciban al menos 2% sin
+depender de qué aplique Civil 3D a radios mayores que el de la primera fila. Entre RC y el escalón de 2.2% el
 peralte queda entre 2.0 y 2.2%, ya sea que Civil 3D interpole o tome el escalón,
 lo que cumple el mínimo de la Tabla 304.06.
 
@@ -116,9 +118,10 @@ arriba, como en las Tablas 303.02 y 303.03.
 
 ## Pendiente de revisar en Civil 3D
 
-- **Velocidades menores a 60 km/h:** al no haber fila NC, conviene trazar una curva de
-  radio mayor que el de la fila RC y comprobar qué peralte aplica Civil 3D.
-- **Tablas renombradas:** los dibujos o archivos de criterios que usaban
+- **Velocidades menores a 60 km/h:** conviene trazar una curva de prueba de más de
+  3,500 m y otra de menos para confirmar qué peralte aplica Civil 3D en cada caso.
+- **Tablas renombradas:** en la pestaña de criterios de diseño de las propiedades del
+  alineamiento y del perfil (no en sus estilos), las referencias a
   `AASHTO 2011 Metric eMax 10%` o `DG2018  metrico Standard` deben apuntar a los nuevos
   nombres.
 - **Tabla `Superelevation Rate By Formula`:** solo se cambiaron `q` y `minimumValue`. Su
