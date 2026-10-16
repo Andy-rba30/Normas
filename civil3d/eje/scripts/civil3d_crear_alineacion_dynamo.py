@@ -27,6 +27,7 @@ API usada (Autodesk.Civil.DatabaseServices.AlignmentEntityCollection):
   AddFreeCurve(Int32 anterior, Int32 siguiente, Point3d puntoDePaso)
 """
 import math
+import os
 import xml.etree.ElementTree as ET
 
 RUTA_XML = r'C:\proyecto\EJE_DG2018_circular.xml'   # se usa si no se conecta IN[0]
@@ -44,9 +45,22 @@ def _pt(txt):
     n, e = [float(v) for v in txt.split()[:2]]   # LandXML: Norte Este -> (X=Este, Y=Norte)
     return (e, n)
 
+def resolver_ruta(ruta):
+    """Acepta la ruta sin extensión (Windows la oculta) y da un mensaje claro si no existe"""
+    ruta = (ruta or '').strip().strip('"')
+    if os.path.isfile(ruta):
+        return ruta
+    for ext in ('.xml', '.XML'):
+        if os.path.isfile(ruta + ext):
+            return ruta + ext
+    carpeta = os.path.dirname(ruta) or '.'
+    xmls = [f for f in os.listdir(carpeta) if f.lower().endswith('.xml')] if os.path.isdir(carpeta) else []
+    raise Exception('No encuentro el archivo "%s". Escribe la ruta completa con extension .xml. '
+                    'Archivos .xml en esa carpeta: %s' % (ruta, ', '.join(xmls) if xmls else 'ninguno'))
+
 def leer_landxml(ruta):
     """Devuelve la lista de elementos [{'tipo':'L'|'C', 'A':(x,y), 'B':(x,y), 'C':(x,y), 'R', 'L', 'ccw'}]"""
-    root = ET.parse(ruta).getroot()
+    root = ET.parse(resolver_ruta(ruta)).getroot()
     cg = None
     for el in root.iter():
         if _tag(el) == 'CoordGeom':
