@@ -19,8 +19,8 @@
 <line x1="5816.1" y1="622.4" x2="5816.3" y2="621.9" stroke="#1565c0" stroke-width="2"/>
 <path d="M 5816.2750 621.8801 A 15.0000 15.0000 0 0 1 5825.4087 612.5346" fill="none" stroke="#d32f2f" stroke-width="3"/>
 <line x1="5825.4" y1="612.5" x2="5878.5" y2="593.4" stroke="#1565c0" stroke-width="2"/>
-<path d="M 5878.4583 593.4000 A 13.1000 13.1000 0 0 0 5880.3197 569.5948" fill="none" stroke="#d32f2f" stroke-width="3"/>
-<path d="M 5880.3217 569.5960 A 40.0000 40.0000 0 0 0 5861.0983 564.6564" fill="none" stroke="#ff9800" stroke-width="3"/>
+<path d="M 5878.4599 593.3995 A 13.0992 13.0992 0 0 0 5880.3212 569.5957" fill="none" stroke="#d32f2f" stroke-width="3"/>
+<path d="M 5880.3212 569.5957 A 39.9976 39.9976 0 0 0 5861.0989 564.6564" fill="none" stroke="#ff9800" stroke-width="3"/>
 <line x1="5861.1" y1="564.7" x2="5838.0" y2="564.6" stroke="#1565c0" stroke-width="2"/>
 <path d="M 5837.9715 564.6380 A 75.0000 75.0000 0 0 1 5812.6778 560.2227" fill="none" stroke="#1b9e3a" stroke-width="3"/>
 <line x1="5812.7" y1="560.2" x2="5783.6" y2="549.8" stroke="#1565c0" stroke-width="2"/>
@@ -119,8 +119,8 @@
 <line x1="4500.5" y1="309.3" x2="4498.9" y2="309.1" stroke="#1565c0" stroke-width="2"/>
 <path d="M 4498.9374 309.0647 A 29.4000 29.4000 0 0 0 4468.3265 324.5311" fill="none" stroke="#ff9800" stroke-width="3"/>
 <line x1="4468.3" y1="324.5" x2="4463.8" y2="333.2" stroke="#1565c0" stroke-width="2"/>
-<path d="M 4463.7947 333.2316 A 37.3000 37.3000 0 0 1 4445.6134 350.1954" fill="none" stroke="#ff9800" stroke-width="3"/>
-<path d="M 4445.6135 350.1953 A 11.5000 11.5000 0 0 1 4433.5282 348.3778" fill="none" stroke="#d32f2f" stroke-width="3"/>
+<path d="M 4463.7947 333.2318 A 37.2997 37.2997 0 0 1 4445.6135 350.1953" fill="none" stroke="#ff9800" stroke-width="3"/>
+<path d="M 4445.6135 350.1953 A 11.4999 11.4999 0 0 1 4433.5282 348.3779" fill="none" stroke="#d32f2f" stroke-width="3"/>
 <line x1="4433.5" y1="348.4" x2="4427.4" y2="343.1" stroke="#1565c0" stroke-width="2"/>
 <path d="M 4427.4079 343.1229 A 45.0000 45.0000 0 0 0 4405.8222 332.9334" fill="none" stroke="#4caf50" stroke-width="3"/>
 <line x1="4405.8" y1="332.9" x2="4393.6" y2="330.8" stroke="#1565c0" stroke-width="2"/>
@@ -201,9 +201,9 @@
 <path d="M 3323.0369 354.0581 A 44.8887 44.8887 0 0 1 3305.2303 353.7402" fill="none" stroke="#ff9800" stroke-width="3"/>
 <path d="M 3305.2303 353.7402 A 12.4000 12.4000 0 0 0 3290.3154 363.8531" fill="none" stroke="#d32f2f" stroke-width="3"/>
 <line x1="3290.3" y1="363.9" x2="3288.4" y2="375.8" stroke="#1565c0" stroke-width="2"/>
-<path d="M 3288.3674 375.8042 A 32.6000 32.6000 0 0 1 3251.1229 402.7633" fill="none" stroke="#ff9800" stroke-width="3"/>
-<path d="M 3251.1564 402.7686 A 80.0000 80.0000 0 0 1 3215.7493 387.8564" fill="none" stroke="#1b9e3a" stroke-width="3"/>
-<line x1="3215.7" y1="387.9" x2="3190.9" y2="369.3" stroke="#1565c0" stroke-width="2"/>
+<path d="M 3288.3640 375.8250 A 32.5788 32.5788 0 0 1 3251.1437 402.7666" fill="none" stroke="#ff9800" stroke-width="3"/>
+<path d="M 3251.1437 402.7666 A 79.9481 79.9481 0 0 1 3215.7596 387.8640" fill="none" stroke="#1b9e3a" stroke-width="3"/>
+<line x1="3215.8" y1="387.9" x2="3190.9" y2="369.3" stroke="#1565c0" stroke-width="2"/>
 <path d="M 3190.9011 369.3130 A 50.0000 50.0000 0 0 0 3153.5107 359.9483" fill="none" stroke="#1b9e3a" stroke-width="3"/>
 <line x1="3153.5" y1="359.9" x2="3115.0" y2="365.8" stroke="#1565c0" stroke-width="2"/>
 <path d="M 3114.9637 365.7856 A 45.0000 45.0000 0 0 0 3111.7837 366.3848" fill="none" stroke="#4caf50" stroke-width="3"/>
@@ -351,8 +351,8 @@
 <line x1="1178.3" y1="1359.9" x2="1201.0" y2="1364.0" stroke="#1565c0" stroke-width="2"/>
 <path d="M 1201.0309 1364.0169 A 50.0000 50.0000 0 0 0 1244.5911 1350.9127" fill="none" stroke="#1b9e3a" stroke-width="3"/>
 <line x1="1244.6" y1="1350.9" x2="1251.5" y2="1344.3" stroke="#1565c0" stroke-width="2"/>
-<path d="M 1251.5063 1344.2812 A 11.4000 11.4000 0 0 1 1269.5526 1347.3305" fill="none" stroke="#d32f2f" stroke-width="3"/>
-<path d="M 1269.5492 1347.3239 A 39.2000 39.2000 0 0 1 1273.5400 1360.3929" fill="none" stroke="#ff9800" stroke-width="3"/>
+<path d="M 1251.5100 1344.2777 A 11.3962 11.3962 0 0 1 1269.5502 1347.3259" fill="none" stroke="#d32f2f" stroke-width="3"/>
+<path d="M 1269.5502 1347.3259 A 39.1869 39.1869 0 0 1 1273.5397 1360.3906" fill="none" stroke="#ff9800" stroke-width="3"/>
 <line x1="1273.5" y1="1360.4" x2="1274.7" y2="1370.0" stroke="#1565c0" stroke-width="2"/>
 <path d="M 1274.7155 1370.0457 A 120.0000 120.0000 0 0 0 1292.6258 1420.0114" fill="none" stroke="#1b9e3a" stroke-width="3"/>
 <line x1="1292.6" y1="1420.0" x2="1305.6" y2="1440.3" stroke="#1565c0" stroke-width="2"/>
@@ -651,7 +651,7 @@
 <circle cx="4457.7" cy="344.9" r="2.2" fill="#ff9800" stroke="#000" stroke-width="0.4"/>
 <text x="4460.7" y="341.9" font-size="9" fill="#333">C66 R37</text>
 <circle cx="4439.0" cy="353.1" r="2.2" fill="#d32f2f" stroke="#000" stroke-width="0.4"/>
-<text x="4442.0" y="350.1" font-size="9" fill="#333">C67 R12</text>
+<text x="4442.0" y="350.1" font-size="9" fill="#333">C67 R11</text>
 <circle cx="4418.0" cy="335.1" r="2.2" fill="#4caf50" stroke="#000" stroke-width="0.4"/>
 <text x="4421.0" y="332.1" font-size="9" fill="#333">C68 R45</text>
 <circle cx="4383.5" cy="329.0" r="2.2" fill="#4caf50" stroke="#000" stroke-width="0.4"/>
@@ -1093,17 +1093,17 @@
 <circle cx="3100.0" cy="369.1" r="4" fill="#000"/><text x="3106.0" y="373.1" font-size="14" font-weight="bold" fill="#000">4.5 km</text>
 <circle cx="2679.4" cy="515.1" r="4" fill="#000"/><text x="2685.4" y="519.1" font-size="14" font-weight="bold" fill="#000">5.0 km</text>
 <circle cx="2223.4" cy="704.5" r="4" fill="#000"/><text x="2229.4" y="708.5" font-size="14" font-weight="bold" fill="#000">5.5 km</text>
-<circle cx="1920.7" cy="790.6" r="4" fill="#000"/><text x="1926.7" y="794.6" font-size="14" font-weight="bold" fill="#000">6.0 km</text>
+<circle cx="1920.7" cy="790.5" r="4" fill="#000"/><text x="1926.7" y="794.5" font-size="14" font-weight="bold" fill="#000">6.0 km</text>
 <circle cx="1570.4" cy="1068.6" r="4" fill="#000"/><text x="1576.4" y="1072.6" font-size="14" font-weight="bold" fill="#000">6.5 km</text>
-<circle cx="1430.5" cy="1208.6" r="4" fill="#000"/><text x="1436.5" y="1212.6" font-size="14" font-weight="bold" fill="#000">7.0 km</text>
+<circle cx="1430.5" cy="1208.5" r="4" fill="#000"/><text x="1436.5" y="1212.5" font-size="14" font-weight="bold" fill="#000">7.0 km</text>
 <circle cx="1234.1" cy="1313.6" r="4" fill="#000"/><text x="1240.1" y="1317.6" font-size="14" font-weight="bold" fill="#000">7.5 km</text>
 <circle cx="1158.4" cy="1476.5" r="4" fill="#000"/><text x="1164.4" y="1480.5" font-size="14" font-weight="bold" fill="#000">8.0 km</text>
 <circle cx="860.2" cy="1183.7" r="4" fill="#000"/><text x="866.2" y="1187.7" font-size="14" font-weight="bold" fill="#000">8.5 km</text>
 <circle cx="732.0" cy="1034.9" r="4" fill="#000"/><text x="738.0" y="1038.9" font-size="14" font-weight="bold" fill="#000">9.0 km</text>
 <circle cx="626.9" cy="1102.9" r="4" fill="#000"/><text x="632.9" y="1106.9" font-size="14" font-weight="bold" fill="#000">9.5 km</text>
 <circle cx="421.4" cy="1173.7" r="4" fill="#000"/><text x="427.4" y="1177.7" font-size="14" font-weight="bold" fill="#000">10.0 km</text>
-<circle cx="425.7" cy="1233.9" r="4" fill="#000"/><text x="431.7" y="1237.9" font-size="14" font-weight="bold" fill="#000">10.5 km</text>
-<circle cx="373.7" cy="900.7" r="4" fill="#000"/><text x="379.7" y="904.7" font-size="14" font-weight="bold" fill="#000">11.0 km</text>
+<circle cx="425.8" cy="1233.9" r="4" fill="#000"/><text x="431.8" y="1237.9" font-size="14" font-weight="bold" fill="#000">10.5 km</text>
+<circle cx="373.6" cy="900.7" r="4" fill="#000"/><text x="379.6" y="904.7" font-size="14" font-weight="bold" fill="#000">11.0 km</text>
 <rect x="20" y="20" width="430" height="184" fill="#fff" stroke="#333"/>
 <text x="30" y="42" font-size="16" font-weight="bold">Eje corregido DG-2018 (V=40 km/h)</text>
 <line x1="30" y1="62" x2="70" y2="62" stroke="#9e9e9e" stroke-width="4"/><text x="80" y="66" font-size="13">Trazo actual (poligonal)</text>

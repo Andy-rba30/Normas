@@ -127,6 +127,15 @@ def run(model_path, out_path, TOL=1.5, LMIN_S=56.0, LMIN_O=111.0, RMIN=45.0, V=4
             g=geo(c,None,Ls)
             if g is None or g['Larc']<V/3.6: continue
             if g['T']<=min(slack_prev(i)+T(c),slack_next(i)+T(c))+1e-6: c['Ls']=Ls
+    # ---------- factibilidad exacta (solapes residuales por redondeo) ----------
+    for _ in range(20):
+        bad=0
+        for i in range(len(cs)-1):
+            Dv=D(i); T1=T(cs[i]); T2=T(cs[i+1])
+            if T1+T2>Dv+1e-9:
+                bad+=1; f=Dv/(T1+T2)
+                for c in (cs[i],cs[i+1]): c['R']=max(c['R']*f,6.0)
+        if not bad: break
     # ---------- geometria final ----------
     for c in cs:
         c['g']=geo(c); c['dmax']=dev(c); 
