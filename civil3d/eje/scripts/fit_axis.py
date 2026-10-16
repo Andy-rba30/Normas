@@ -5,7 +5,7 @@ import numpy as np, math, sys, pickle, time
 PRM = dict(
     V=40.0, RMIN_NORM=45.0, RMIN_EXC=25.0, R_FLOOR=12.5,
     R_THR=250.0, H_HEAD=4, W_CURV=6,
-    LT_MIN=10.0, TOL_TAN=0.8, E_SMALL=0.5, DELTA_SPLIT=170.0,
+    LT_MIN=10.0, TOL_TAN=0.8, E_SMALL=0.5, DELTA_SMALL=8.0, DELTA_SPLIT=170.0,
     TOL_UP=2.0, EXT=15.0,
     LS_NORM=40.0, LS_MIN=30.0, R_NO_SPIRAL=150.0,
     SWEEPS=5, SWEEPS_REAL=2, T_MERGE=4.0, R_ABS=6.0, CORE_DELTA=100.0, CORE_FRAC=0.6, TOL_SPLIT=2.5,
@@ -53,7 +53,7 @@ def cleanup(runs, th, k, prm):
             if st!=0 and (prev is None or prev[0]==0) and (nxt is None or nxt[0]==0):
                 d=abs(th[min(i1,n-1)]-th[i0]); R=1/max(np.abs(k[i0:i1]).mean(),1e-9)
                 E=R*(1/math.cos(d/2)-1) if d<2.8 else 1e9
-                if E<prm['E_SMALL'] and d<math.radians(8): runs[idx][0]=0; changed=True; break
+                if E<prm['E_SMALL'] and d<math.radians(prm.get('DELTA_SMALL',8.0)): runs[idx][0]=0; changed=True; break
         runs=merge_same(runs)
     return runs
 
@@ -204,8 +204,9 @@ def build(P, prm=PRM, spirals=False, log=print):
         if not bad and not merge: break
         for j in sorted(set(bad)|set(merge),reverse=True):
             if j in merge:   # fundir tangentes A y B en una sola linea
-                A=seq[j-1][1]; B=seq[j+1][1]; i0=A['i0']; i1=B['i1']
-                c,d,res,_=fit_line(x[i0:i1],y[i0:i1]); seq[j-1:j+2]=[('T',dict(p=c,u=d,virtual=False,i0=i0,i1=i1,res=res))]
+                A=seq[j-1][1]; B=seq[j+1][1]; i0=min(A['i0'],B['i0']); i1=max(A['i1'],B['i1'])
+                if i1-i0<4: i0=max(i0-3,0); i1=min(i1+3,n)
+                c,d,res,_=fit_line(x[i0:i1],y[i0:i1]); seq[j-1:j+2]=[('T',dict(p=c,u=d,virtual=(A['virtual'] and B['virtual']),i0=i0,i1=i1,res=res))]
             else:
                 c=seq[j][1]; i0=c['i0']; i1=min(c['i1'],n-1); m=(i0+i1)//2
                 a=max(i0-5,0); b=min(i1+5,n-1); u=np.array([x[b]-x[a],y[b]-y[a]]); u/=np.hypot(*u)

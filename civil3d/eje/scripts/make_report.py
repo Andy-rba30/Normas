@@ -2,7 +2,8 @@ import sys, os, math, datetime, numpy as np
 sys.path.insert(0,'/tmp/claude-0/-home-user-Normas/1d8bfce3-3294-5b1e-ace9-ad5fa4f1a13c/scratchpad/aln')
 os.chdir('/tmp/claude-0/-home-user-Normas/1d8bfce3-3294-5b1e-ace9-ad5fa4f1a13c/scratchpad/aln')
 import write_outputs as W
-m=W.load('model.pkl'); rows=W.curve_rows(m); cs=m['curves']; d=m['d']; n=len(rows)
+MODEL=sys.argv[1] if len(sys.argv)>1 else 'model_t.pkl'
+m=W.load(MODEL); rows=W.curve_rows(m); cs=m['curves']; d=m['d']; n=len(rows); TP=m.get('tpass')
 V=40.0
 def sta(s): return W.sta_fmt(s)
 def ve(R): return math.sqrt(127*R*(0.12+0.17))   # velocidad especifica con p=12%, f=0.17 (Tabla 302.02, 30-40 km/h)
@@ -16,7 +17,7 @@ ri=[(r,W.ri_volteo(r['R'])) for r in vols]
 ri8=sum(1 for _,x in ri if x>=8); ri6=sum(1 for _,x in ri if 6<=x<8); ri0=sum(1 for _,x in ri if x<6)
 tn=[r['tan_next'] for r in rows[:-1]]
 same=[(rows[i]['sentido']==rows[i+1]['sentido']) for i in range(n-1)]
-tan_ok=sum(1 for t,s in zip(tn,same) if t>=(111 if s else 56))
+tan_ok=sum(1 for t,s in zip(tn,same) if t>=(111 if s else 56)); comp=sum(1 for t,s in zip(tn,same) if s and t<=0.05)
 tan_cls={'0 (curvas enlazadas)':sum(1 for t in tn if t<0.05),'0 a 20 m':sum(1 for t in tn if 0.05<=t<20),'20 a 56 m':sum(1 for t in tn if 20<=t<56),'56 a 111 m':sum(1 for t in tn if 56<=t<111),'más de 111 m':sum(1 for t in tn if t>=111)}
 small=[r for r in rows if r['delta']<5]
 ratio_ok=sum(1 for r in rows[:-1] if 'relacion de radios' not in r['obs'])
@@ -52,7 +53,8 @@ A(f'| Curvas de vuelta | Radio interior Ri ≥ 8 m (normal) o 6 m (absoluto); Re
 A('| Radio a partir del cual no se requiere peralte | 3 500 m (V = 40 km/h) | Tabla 304.04: "Velocidad 40 km/h: radio 3 500 m". | Tabla 304.04 | Ninguna curva del eje supera 3 500 m; todas se peraltan. |')
 A('| Peralte mínimo | 2 % para 2 500 ≤ R < 3 500 m | Tabla 304.06: "40 ≤ V < 100: 2 500 ≤ R < 3 500". | Tabla 304.06 | - |')
 A('| Transición del peralte | ipmáx = 1.8 − 0.01 V = 1.4 %; Lmín = (pf − pi)/ipmáx · B | "ipmáx = 1.8 − 0.01 V (...) Lmín = (pf − pi)/ipmáx · B". | Tópico 302.08 | Para Civil 3D se entrega el archivo de criterios DG2018_Corregido_2.xml (tablas "DG2018 _PMax 12%" y método "DG2018 METRICO"). |')
-A(f'| Longitud mínima de tangentes | 56 m entre curvas en S; 111 m entre curvas del mismo sentido; máx. deseable 668 m | Tabla 302.01: "40 km/h: L mín.s 56, L mín.o 111, L máx 668". | Tabla 302.01 | Solo {tan_ok} de {n-1} tangentes intermedias cumplen. Limitación propia del trazo existente (capítulo 6.4). |')
+A(f'| Longitud mínima de tangentes | 56 m entre curvas en S; 111 m entre curvas del mismo sentido; máx. deseable 668 m | Tabla 302.01: "40 km/h: L mín.s 56, L mín.o 111, L máx 668". | Tabla 302.01 | {tan_ok} de {n-1} tangentes intermedias cumplen; además {comp} pares del mismo sentido se resolvieron como curva compuesta sin tangente (Tópico 302.06.03). El resto es limitación del trazo existente (capítulo 6.4 y capítulo 7). |')
+A('| Curvas vecinas del mismo sentido | Fundidas en una sola curva o en compuesta cuando la tangente intermedia era corta | "En general se evitará el empleo de curvas del mismo sentido, cuando estén separadas por un tramo en tangente de una longitud menor a 400 m, en longitudes menores excepcionalmente puede utilizarse una curva policéntrica." | Tópico 302.06.03 | Ver capítulo 7 (pasada de tangentes). |')
 A(f'| Longitud mínima de curva | 3V = 120 m; para Δ ≤ 5°: L > 30(10 − Δ); nunca Δ < 59′ | "La longitud mínima de curva (L) será: carreteras de dos carriles 3V (...) En el caso de ángulos de deflexión Δ pequeños, iguales o inferiores a 5º (...) L > 30(10 − Δ) (...) No se usará nunca ángulos de deflexión menores de 59\' (minutos)." | Tópico 302.02 | Ninguna curva alcanza 120 m (la mayor tiene {max(r["Ltot"] for r in rows):.0f} m). {len(small)} curvas tienen Δ < 5°; ninguna tiene Δ < 59′. |')
 A(f'| Curvas de transición (clotoides) | No incluidas en esta variante | Tabla 302.11A: para 40 km/h se puede prescindir de la transición si R ≥ 150 m. Tabla 302.10: longitud mínima de transición 40 m a 40 km/h; "En ningún caso se adoptarán longitudes de transición menores a 30 m". Tópico 302.05.06: R/3 ≤ A ≤ R. | Tópicos 302.05.06 y 302.05.07, Tablas 302.10 y 302.11A | {sum(1 for r in rows if r["R"]<150)} curvas tienen R < 150 m y requerirían clotoide; con Le = 40 m solo cabe en 5 (variante EJE_DG2018_clotoides.xml) porque las tangentes disponibles son demasiado cortas. |')
 A(f'| Relación entre radios consecutivos | Tabla 302.08 (grupo 2) | "cuando se enlacen curvas circulares consecutivas sin tangente intermedia, así como mediante tangente de longitud menor o igual a 200 m, la relación de radios (...) no sobrepasará los valores (...) Grupo 2: Carreteras de Segunda y Tercera Clase." | Tópico 302.04.05 y Tabla 302.08 | {ratio_ok} de {n-1} pares cumplen. |')
@@ -132,11 +134,33 @@ A('Son los puntos a revisar en campo o en Civil 3D antes de aprobar el eje, por 
 A('| Curva | Prog. PC | Prog. PT | Norte PI | Este PI | R (m) | Separación máx. (m) | Comentario |'); A('|------|--------|--------|---------|---------|-----|------|----------------|')
 for r in hot: A(f"| C-{r['n']} | {sta(r['sta_PC'])} | {sta(r['sta_PT'])} | {r['PI_N']:.3f} | {r['PI_E']:.3f} | {r['R']:.1f} | {r['dmax']:.2f} | {'radio subido al mínimo normativo' if 'subido' in r['obs'] else 'cadena de curvas de radio variable en el trazo'} |")
 A('')
-A('# 7. Conclusiones y recomendaciones'); A('')
+A('# 7. Pasada de tangentes (Tabla 302.01 y Tópico 302.06.03)'); A('')
+if TP:
+    an=TP['antes']; de=TP['despues']; st=TP['stats']
+    A(f"Sobre el eje ajustado al trazo se aplicó una pasada para respetar las longitudes de tangente donde fuera posible, con una separación máxima adicional respecto al trazo de {TP['TOL']:.1f} m. Reglas aplicadas:"); A('')
+    A('1. Curvas consecutivas del mismo sentido separadas por una tangente menor de 111 m: se reemplazan por una sola curva circular si cabe dentro de la tolerancia; si no, se convierten en curva compuesta (policéntrica) elevando el radio de una de ellas hasta eliminar la tangente intermedia, solución que el Tópico 302.06.03 admite excepcionalmente. Nunca se recorta una tangente vecina entre curvas en S.')
+    A('2. Curvas en S con tangente menor de 56 m: se reducen los radios de ambas curvas, sin bajar de 45 m, hasta abrir la tangente a 56 m, siempre que la separación respecto al trazo no supere la tolerancia.')
+    A('3. Las deflexiones menores de 12° cuya supresión desplaza el eje menos de 1.0 m se absorbieron en la tangente desde el ajuste base, lo que alarga las tangentes y reduce el número de curvas.'); A('')
+    A('| Indicador | Antes de la pasada | Después |'); A('|------------------------------|---------|---------|')
+    A(f"| Número de curvas | {an['n_curvas']} | {de['n_curvas']} |")
+    A(f"| Pares del mismo sentido con tangente corta (0 < L < 111 m) | {an['mismo_corta']} | {de['mismo_corta']} |")
+    A(f"| Pares del mismo sentido resueltos como curva compuesta (sin tangente) | {an['mismo_cero']} | {de['mismo_cero']} |")
+    A(f"| Pares del mismo sentido con tangente ≥ 111 m | {an['mismo_ok']} | {de['mismo_ok']} |")
+    A(f"| Pares en S con tangente ≥ 56 m | {an['S_ok']} | {de['S_ok']} |")
+    A(f"| Pares en S con tangente entre 20 y 56 m | {an['S_20_56']} | {de['S_20_56']} |")
+    A(f"| Pares en S con tangente menor de 20 m (incluye 0) | {an['S_corta']-an['S_20_56']+an['S_cero']} | {de['S_corta']-de['S_20_56']+de['S_cero']} |")
+    A(''); A(f"Resultado de la pasada: {st['fusion']} fusiones en una sola curva, {st['compuesta']} pares convertidos en curva compuesta, {st['fusion_fail']} pares del mismo sentido que no admiten ninguna de las dos soluciones dentro de la tolerancia, {st['S_ok']} tangentes en S abiertas a 56 m y {st['S_fail']} que no pueden abrirse sin bajar de 45 m de radio o sin salirse del trazo más de {TP['TOL']:.1f} m.")
+    A('')
+    A('Las tangentes en S son el incumplimiento que queda. Para abrir 56 m entre dos curvas de 45 m de radio y 40° de deflexión los PIs deben distar unos 90 m, y en este trazo distan típicamente de 30 a 80 m. Solo se puede corregir saliéndose del trazo existente, es decir, con expropiación, o reduciendo la velocidad específica del sector.')
+else:
+    A('No se aplicó pasada de tangentes a este modelo.')
+A('')
+A('# 8. Conclusiones y recomendaciones'); A('')
 A(f'1. El eje cumple el radio mínimo de la DG-2018 (45 m a 40 km/h, peralte 12 %) en {cum50+cum45} de {n} curvas. En {exc} curvas se adopta radio excepcional con velocidad específica de 30 km/h y en {vol} se trata de curvas de vuelta o esquinas urbanas.')
 A(f'2. Las {ri0} curvas con radio interior menor de 6 m (zonas V-1, V-3 y otras indicadas en 6.3) no admiten justificación con la DG-2018. Se recomienda ampliar la plataforma en esos puntos o aceptar expropiaciones puntuales.')
 A('3. Los primeros 230 m (zona urbana de inicio) tienen geometría de calles, con radios de 6 a 22 m. Conviene tratar ese tramo como vía urbana con velocidad de 20 a 30 km/h.')
 A('4. Las clotoides, las tangentes mínimas y la longitud mínima de curva no se cumplen por la premisa de seguir el trazo existente. Debe dejarse constancia en el expediente, con la señalización vertical y horizontal correspondiente al Manual de Dispositivos de Control de Tránsito.')
+A('7. Las tangentes en S que siguen por debajo de 56 m deben señalizarse como sector de curvas sucesivas; su corrección geométrica exige expropiación.')
 A('5. En Civil 3D, asociar al eje el archivo de criterios DG2018_Corregido_2.xml con velocidad 40 km/h; los triángulos de advertencia que queden marcan exactamente las curvas de los capítulos 6.2 y 6.3.')
 A('6. Verificar la visibilidad de parada (50 m) con banquetas en las curvas de radio menor a 60 m ubicadas en corte, según el Tópico 302.10.01.')
 A('')

@@ -168,6 +168,9 @@ def curve_rows(m):
         if c.get('forced'): obs.append('REVISAR: radio forzado por geometria de PIs')
         if R<12.5 and R<R_VOLTEO: obs.append('radio de eje < 12.5 m: no alcanza Ri = 8 m con calzada de 6 m; ampliar plataforma o aceptar Ri absoluto')
         if c['kind']=='jog': obs.append('desplazamiento del eje (curvas en S de gran radio)')
+        if c['kind']=='fusion': obs.append('curva unica que reemplaza a curvas consecutivas del mismo sentido con tangente corta (Topico 302.06.03)')
+        if c.get('compuesta'): obs.append('curva compuesta (policentrica) sin tangente con la curva vecina del mismo sentido (Topico 302.06.03, excepcional)')
+        if c.get('S_ajustada'): obs.append('radio reducido (no menor de 45 m) para abrir la tangente en S a 56 m (Tabla 302.01)')
         if c['kind']=='quiebre': obs.append('quiebre de tangente larga')
         # relacion de radios con la siguiente curva (ambos sentidos de circulacion)
         if ci+1<len(curves) and tan_next<=200:
@@ -175,7 +178,8 @@ def curve_rows(m):
             if not (ratio_ok(R,Rn) and ratio_ok(Rn,R)): obs.append(f'relacion de radios con C-{ci+2} ({R:.0f}/{Rn:.0f}) fuera de Tabla 302.08')
         if ci+1<len(curves):
             same=(c['delta']>0)==(curves[ci+1]['delta']>0); need=LMIN_O if same else LMIN_S
-            if tan_next<need-1e-6: obs.append(f'tangente a C-{ci+2} = {tan_next:.1f} m < {need:.0f} m ({"mismo sentido" if same else "S"})')
+            if same and tan_next<=0.05: obs.append(f'sin tangente con C-{ci+2}: curva compuesta del mismo sentido')
+            elif tan_next<need-1e-6: obs.append(f'tangente a C-{ci+2} = {tan_next:.1f} m < {need:.0f} m ({"mismo sentido" if same else "S"})')
         rows.append(dict(n=ci+1, PI_N=g['PI'][1], PI_E=g['PI'][0], sta_PI=sta_pi, delta=d, sentido=sentido, R=R, Ls=c['Ls'], T=g['T'], Lc=g['Larc'], Ltot=g['Ltot'], E=g['E'],
                          sta_PC=sta_pc, sta_PT=sta_pt, Sa=sobreancho(R), tan_prev=tan_prev, tan_next=tan_next, dmax=c['dmax'], clase=cl, obs='; '.join(obs), kind=c['kind']))
     return rows
@@ -272,7 +276,7 @@ def write_report(m, rows, path, title, orig_len):
         c=sum(1 for r in rows if r['clase']==k); L.append(f'| {k} | {c} | {100*c/n:.0f} % |')
     tn=[r['tan_next'] for r in rows[:-1]]
     L+=['',f'- Curvas con clotoide: {sum(1 for r in rows if r["Ls"]>0)} de {sum(1 for r in rows if r["R"]<R_NO_SPIRAL)} que la requieren (R < 150 m).',
-        f'- Tangentes intermedias que cumplen la longitud mínima de la Tabla 302.01: {sum(1 for r in rows[:-1] if "tangente a C-" not in r["obs"])} de {len(tn)}.',
+        f'- Tangentes intermedias que cumplen la longitud mínima de la Tabla 302.01: {sum(1 for r in rows[:-1] if "tangente a C-" not in r["obs"] and "sin tangente con" not in r["obs"])} de {len(tn)}; curvas compuestas del mismo sentido sin tangente (302.06.03): {sum(1 for r in rows[:-1] if "sin tangente con" in r["obs"])}.',
         f'- Curvas con longitud total ≥ 3V = 120 m: {sum(1 for r in rows if r["Ltot"]>=LC_MIN)} de {n}.',
         f'- Pares de curvas consecutivas (tangente ≤ 200 m) con relación de radios dentro de la Tabla 302.08: {sum(1 for r in rows[:-1] if "relacion de radios" not in r["obs"])} de {n-1}.',
         '', '## Curvas con radio menor al normativo (coordenadas de PI)','',
