@@ -14,4 +14,5 @@ Eje ajustado al trazo existente (`PROCESAMIENTO DISEÑO GEOMETRICO`, 11.49 km) c
 | `EJE_DG2018_*_PI_PNEZD.csv` | Puntos de PI en formato PNEZD (importar como grupo de puntos). |
 | `EJE_DG2018_*_PI_polilinea.scr` | Script de AutoCAD que dibuja la polilínea de PIs con etiquetas de radio (para "Create Alignment from Objects"). |
 | `EJE_DG2018_*_planta.svg` / `.png` | Croquis de planta: trazo actual en gris y eje corregido coloreado por clase de curva. |
+| `EJE_DG2018_circular_memoria.docx` / `.md` | Memoria de diseño geométrico en planta: parámetros adoptados contrastados con las citas de la DG-2018, inventario de curvas normativas, en el mínimo, excepcionales y de vuelta (con progresivas y coordenadas de PI), tangentes, sitios a revisar y anexo con la tabla completa. |
 | `EJE_DG2018_*_reporte.md` | Parámetros adoptados, resultados globales, lista de radios menores al normativo con coordenadas de PI, zonas de curvas de vuelta, tabla completa y guía de uso. |
