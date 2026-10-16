@@ -80,10 +80,11 @@ def run(model_path, out_path, TOL=1.5, LMIN_S=56.0, LMIN_O=111.0, RMIN=45.0, V=4
             order=sorted([(i,'next'),(i+1,'prev')],key=lambda t:cs[t[0]]['R'])
             for k,side in order:
                 c=cs[k]; Tt=T(c)+L; Rn=R_for_T(c,Tt)
-                other=slack_prev(k) if side=='prev' else slack_next(k)
-                other_S=(k>0 and not same(k-1)) if side=='prev' else (k<len(cs)-1 and not same(k))
+                # 'side' es el lado compartido; el otro lado es el opuesto
+                other=slack_next(k) if side=='prev' else slack_prev(k)
+                other_S=(k<len(cs)-1 and not same(k)) if side=='prev' else (k>0 and not same(k-1))
                 # al subir T de c, consume L en el lado compartido y L en el otro lado: no se toca una tangente en S
-                if other_S and (k>0 if side=='prev' else k<len(cs)-1): continue
+                if other_S: continue
                 if other>=L-1e-6 and dev(c,Rn)<=TOL:
                     c['R']=Rn; c['kind']=c.get('kind','curva'); c['compuesta']=True; cs[i if k==i+1 else i+1]['compuesta']=True
                     stats['compuesta']+=1; done=True; break
