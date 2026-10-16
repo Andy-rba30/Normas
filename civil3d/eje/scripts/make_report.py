@@ -30,6 +30,74 @@ for r in rows:
     elif cur: grp.append(cur); cur=[]
 if cur: grp.append(cur)
 
+
+# ---- 6.6 curvas compuestas (policéntricas) y curvas inversas enlazadas sin tangente ----
+import xml.etree.ElementTree as ET
+def tabla_peralte(nombre='12%', vel='40'):
+    r_=ET.parse('/home/user/Normas/civil3d/DG2018_Corregido_2.xml').getroot()
+    for t_ in r_.iter():
+        if t_.tag.split('}')[-1]=='SuperelevationTable' and nombre in t_.get('name',''):
+            for s_ in t_:
+                for sp in s_:
+                    if sp.get('speed')==vel: return [(float(e.get('radius')),e.get('eRate')) for e in sp]
+    return []
+TP40=tabla_peralte('12%','40')
+def peralte(Rv):
+    """p (%) con la tabla 'DG2018 _PMax 12%' (V = 40 km/h) del archivo de criterios: el valor del mayor radio de tabla <= R; 12 % por debajo de 45 m"""
+    cand=[(rad,e) for rad,e in TP40 if rad<=Rv+1e-6 and e not in ('NC','RC')]
+    return float(max(cand)[1]) if cand else 12.0
+IPMAX=1.8-0.01*V; B_GIRO=3.0; DECEL=1.0
+def ve_lim(Rv): return min(V, ve(Rv))
+def lmin_trans(dp): return dp/IPMAX*B_GIRO
+seq_=[e for e in m['els'] if not (e['type']=='Line' and e['L']<=1e-4)]
+ent_of={e['ci']:i+1 for i,e in enumerate(seq_) if e['type']=='Curve'}
+grupos=[]; cur=[rows[0]]
+for i in range(n-1):
+    if rows[i]['tan_next']<0.05: cur.append(rows[i+1])
+    else:
+        if len(cur)>1: grupos.append(cur)
+        cur=[rows[i+1]]
+if len(cur)>1: grupos.append(cur)
+def rel(a,b): return 'compuesta' if a['sentido']==b['sentido'] else 'inversa'
+def tipo_grupo(g):
+    rels=[rel(a,b) for a,b in zip(g,g[1:])]; k=len(g)
+    if all(x=='compuesta' for x in rels): return {2:'compuesta de dos centros',3:'policéntrica de tres centros',4:'compuesta de cuatro centros'}.get(k,f'compuesta de {k} centros')
+    if all(x=='inversa' for x in rels): return 'inversas enlazadas (S sin tangente)' if k==2 else f'inversas enlazadas ({k} curvas)'
+    return 'mixta (compuesta + inversa)'
+def eval_union(a,b):
+    Re,Rs=a['R'],b['R']; ratio=max(Re,Rs)/min(Re,Rs); inv=(a['sentido']!=b['sentido'])
+    ok15=ratio<=1.5+1e-9
+    if Re>=40: rmin=max(Re/1.5,50.0); rmax=1.5*Re; t308=(rmin-1e-6<=Rs<=rmax+1e-6); t308txt=f'{rmin:.0f} a {rmax:.0f} m: '+('cumple' if t308 else 'no cumple')
+    else: t308=None; t308txt='fuera de tabla (R entrada < 40 m)'
+    pe,ps=peralte(Re),peralte(Rs); dp=(pe+ps) if inv else abs(pe-ps); lt=lmin_trans(dp)
+    La,Lb=a['Lc'],b['Lc']
+    tv='cabe en cada arco' if lt<=min(La,Lb) else ('cabe repartida en los dos arcos' if lt<=La+Lb else 'no cabe (arcos cortos)')
+    vea,ves=ve_lim(Re),ve_lim(Rs)
+    if (not inv) and Rs<Re and ves<vea-0.5:
+        dd=((vea/3.6)**2-(ves/3.6)**2)/(2*DECEL); dtxt=f'{vea:.0f} -> {ves:.0f} km/h: {dd:.0f} m necesarios, {La:.0f} m disponibles: '+('cumple' if dd<=La else 'no cumple')
+    else: dd=0.0; dtxt='no aplica' if not inv else 'no aplica (curva inversa)'
+    return dict(Re=Re,Rs=Rs,ratio=ratio,ok15=ok15,t308=t308,t308txt=t308txt,pe=pe,ps=ps,dp=dp,lt=lt,La=La,Lb=Lb,tv=tv,vea=vea,ves=ves,dd=dd,dtxt=dtxt,inv=inv)
+def norma_grupo(g):
+    k=len(g); rels=[rel(a,b) for a,b in zip(g,g[1:])]
+    if all(x=='compuesta' for x in rels):
+        if k==2: base='302.06.01 a 302.06.03 (curva compuesta, caso excepcional); 302.04.05 y Tabla 302.08; 302.08'
+        elif k==3: base='302.06.02 (policéntrica de tres centros: relación 1.5, transición 302.08, longitud para desacelerar); 302.04.05 y Tabla 302.08'
+        else: base=f'no contemplada por la DG-2018 ({k} centros); 302.06.02 por analogía; 302.04.05 y Tabla 302.08; 302.08; requiere justificación expresa'
+    elif all(x=='inversa' for x in rels): base='302.02 Consideraciones de diseño (curvas opuestas sin espiral); Tabla 302.01 (L mín. S = 56 m); 302.04.05 y Tabla 302.08; 302.08'
+    else: base='302.06.01 a 302.06.03 (uniones compuestas) y 302.02 + Tabla 302.01 (uniones inversas); 302.04.05 y Tabla 302.08; 302.08; configuración no contemplada, requiere justificación expresa'
+    if any(r['R']<25 for r in g): base+='; 302.07 y Tabla 302.12 (curva de vuelta)'
+    elif any(r['R']<45-0.06 for r in g): base+='; 204.03 y Tabla 302.02 (Ve = 30 km/h)'
+    return base
+def origen_grupo(g):
+    if any(cs[r['n']-1].get('compuesta') for r in g): return 'pasada de tangentes: sustituye una tangente corta entre curvas del mismo sentido (302.06.03)'
+    return 'trazo existente: cadena de curvatura variable; se mantiene para no expropiar (302.06.02)'
+grp_tipos={}
+for g in grupos: grp_tipos[tipo_grupo(g)]=grp_tipos.get(tipo_grupo(g),0)+1
+uniones=[(gi+1,a,b,eval_union(a,b)) for gi,g in enumerate(grupos) for a,b in zip(g,g[1:])]
+u_comp=[u for u in uniones if not u[3]['inv']]; u_inv=[u for u in uniones if u[3]['inv']]
+ok15_n=sum(1 for u in uniones if u[3]['ok15']); t308_ok=sum(1 for u in uniones if u[3]['t308']); t308_na=sum(1 for u in uniones if u[3]['t308'] is None)
+trans_ok=sum(1 for u in uniones if u[3]['tv'].startswith('cabe')); dec_bad=sum(1 for u in uniones if 'no cumple' in u[3]['dtxt'])
+
 L=[]; A=L.append
 A('---'); A('title: "Memoria de diseño geométrico en planta"'); A('subtitle: "Eje EJE DG2018 V40 CIRCULAR, ajustado al trazo existente según el Manual de Carreteras: Diseño Geométrico DG-2018"'); A(f'date: "{datetime.date.today().strftime("%d/%m/%Y")}"'); A('lang: es'); A('---'); A('')
 A('# 1. Objeto y alcance'); A('')
@@ -58,6 +126,7 @@ A('| Curvas vecinas del mismo sentido | Fundidas en una sola curva o en compuest
 A(f'| Longitud mínima de curva | 3V = 120 m; para Δ ≤ 5°: L > 30(10 − Δ); nunca Δ < 59′ | "La longitud mínima de curva (L) será: carreteras de dos carriles 3V (...) En el caso de ángulos de deflexión Δ pequeños, iguales o inferiores a 5º (...) L > 30(10 − Δ) (...) No se usará nunca ángulos de deflexión menores de 59\' (minutos)." | Tópico 302.02 | Ninguna curva alcanza 120 m (la mayor tiene {max(r["Ltot"] for r in rows):.0f} m). {len(small)} curvas tienen Δ < 5°; ninguna tiene Δ < 59′. |')
 A(f'| Curvas de transición (clotoides) | No incluidas en esta variante | Tabla 302.11A: para 40 km/h se puede prescindir de la transición si R ≥ 150 m. Tabla 302.10: longitud mínima de transición 40 m a 40 km/h; "En ningún caso se adoptarán longitudes de transición menores a 30 m". Tópico 302.05.06: R/3 ≤ A ≤ R. | Tópicos 302.05.06 y 302.05.07, Tablas 302.10 y 302.11A | {sum(1 for r in rows if r["R"]<150)} curvas tienen R < 150 m y requerirían clotoide; con Le = 40 m solo cabe en 5 (variante EJE_DG2018_clotoides.xml) porque las tangentes disponibles son demasiado cortas. |')
 A(f'| Relación entre radios consecutivos | Tabla 302.08 (grupo 2) | "cuando se enlacen curvas circulares consecutivas sin tangente intermedia, así como mediante tangente de longitud menor o igual a 200 m, la relación de radios (...) no sobrepasará los valores (...) Grupo 2: Carreteras de Segunda y Tercera Clase." | Tópico 302.04.05 y Tabla 302.08 | {ratio_ok} de {n-1} pares cumplen. |')
+A(f'| Curvas compuestas (policéntricas) y curvas inversas enlazadas | {len(grupos)} grupos de curvas consecutivas sin tangente intermedia | "En general, se evitará el empleo de curvas compuestas, tratando de reemplazarlas por una sola curva (...) En caso excepcional se podrá usar curvas compuestas, aclarando las razones, técnico-económicas u otras (...) En el caso de usar una curva compuesta de tres centros denominada policéntrica, deberán respetarse las siguientes condiciones: El radio de una de las curvas no será mayor de 1.5 veces el radio de la otra. Para armonizar los valores del peralte y sobreancho de cada una de las curvas vecinas, se empleará una transición de peralte determinada acorde a lo establecido en el Tópico 302.08. Para una sucesión de curvas de radio decreciente cada curva debe ser de longitud suficiente para permitir una desaceleración gradual." | Tópicos 302.06.01, 302.06.02 y 302.06.03 | {ok15_n} de {len(uniones)} uniones cumplen la relación 1.5. Detalle completo en el capítulo 6.6. |')
 A('| Sobreancho | Sa = n(R − √(R² − L²)) + V/(10 √R); mínimo 0.40 m; vehículo B2 con L = 8.25 + 2.30 = 10.55 m | "Sa = n (R − √(R² − L²)) + V/(10√R) (...) Se considera apropiado un valor mínimo de 0.40 m de sobreancho para justificar su adopción." Tabla 202.01: ómnibus de dos ejes B2, separación de ejes 8.25 m, vuelo delantero 2.30 m. | Tópico 302.09.03, Tabla 202.01 | Valor por curva en el Anexo A. En curvas de vuelta el ancho se toma de la Tabla 302.12. |')
 A('| Ancho de calzada | 6.00 m | Tabla 304.01: Carretera de Segunda Clase, orografía 4, 40 km/h: 6.60 / 6.60 / 6.60 / 6.00 m según orografía 1 a 4. | Tabla 304.01 | 6.00 m en escarpado (6.60 m si el tramo se clasifica como accidentado). |')
 A('| Ancho de bermas | 0.50 m | Tabla 304.02: Segunda Clase, 40 km/h: 1.20 / 1.20 / 0.90 / 0.50 m según orografía. | Tabla 304.02 | 0.50 m en escarpado. |')
@@ -86,6 +155,9 @@ A(f'| Longitud de trazo con separación mayor a 1.5 m / 2.5 m / 4.0 m | {(d>1.5)
 A(f'| Tangentes intermedias que cumplen la Tabla 302.01 | {tan_ok} de {n-1} |')
 A(f'| Pares de curvas consecutivas que cumplen la Tabla 302.08 | {ratio_ok} de {n-1} |')
 A(f'| Curvas con longitud ≥ 3V = 120 m | 0 de {n} |')
+A(f"| Grupos de curvas enlazadas sin tangente intermedia | {len(grupos)}: " + ', '.join(f'{v_} {k_}' for k_,v_ in grp_tipos.items()) + ' |')
+A(f'| Uniones curva-curva sin tangente (compuestas / inversas) | {len(uniones)} ({len(u_comp)} / {len(u_inv)}) |')
+A(f'| Uniones que cumplen la relación de radios ≤ 1.5 (Tópico 302.06.02) | {ok15_n} de {len(uniones)} |')
 A('')
 A('# 5. Interpretación'); A('')
 A(f'El {100*(cum50+cum45)/n:.0f} % de las curvas cumple el radio mínimo de la DG-2018 para 40 km/h. El {100*exc/n:.0f} % queda entre 25 y 45 m y debe tratarse como curva excepcional con velocidad específica de 30 km/h y señalización preventiva y reglamentaria. El {100*vol/n:.0f} % restante corresponde a curvas de vuelta y esquinas urbanas con radios de eje entre 6 y 25 m, que es lo que impone la geometría existente; en {ri0} de ellas el radio interior resultante es menor de 6 m, de modo que para cumplir siquiera el mínimo absoluto habría que ampliar la plataforma o expropiar.')
@@ -134,6 +206,37 @@ A('Son los puntos a revisar en campo o en Civil 3D antes de aprobar el eje, por 
 A('| Curva | Prog. PC | Prog. PT | Norte PI | Este PI | R (m) | Separación máx. (m) | Comentario |'); A('|------|--------|--------|---------|---------|-----|------|----------------|')
 for r in hot: A(f"| C-{r['n']} | {sta(r['sta_PC'])} | {sta(r['sta_PT'])} | {r['PI_N']:.3f} | {r['PI_E']:.3f} | {r['R']:.1f} | {r['dmax']:.2f} | {'radio subido al mínimo normativo' if 'subido' in r['obs'] else 'cadena de curvas de radio variable en el trazo'} |")
 A('')
+A('## 6.6 Curvas compuestas (policéntricas) y curvas inversas enlazadas sin tangente'); A('')
+A(f'El eje tiene {len(grupos)} grupos de curvas consecutivas sin tangente intermedia, con {len(uniones)} uniones curva-curva: {len(u_comp)} entre curvas del mismo sentido (curvas compuestas) y {len(u_inv)} entre curvas de sentido contrario (curvas inversas enlazadas, S sin tangente). Por número de centros: ' + ', '.join(f'{v_} {k_}' for k_,v_ in grp_tipos.items()) + '. Los grupos provienen de dos orígenes: los que ya existían en el trazo (cadenas de curvatura variable) y los creados por la pasada de tangentes al reemplazar tangentes cortas entre curvas del mismo sentido (Tópico 302.06.03).'); A('')
+A('**Parte de la norma que rige estos casos especiales.** Los grupos de curvas sin tangente intermedia no son geometría ordinaria: la DG-2018 los regula como caso excepcional en el Tópico 302.06 "Curvas compuestas" (302.06.01 Definición; 302.06.02 Caso excepcional, que exige "aclarar las razones, técnico-económicas u otras, que justifican el empleo de dos curvas continuas de radio diverso" y fija las tres condiciones de la policéntrica de tres centros; 302.06.03 Curvas vecinas del mismo sentido, que admite la policéntrica cuando la tangente sería menor de 400 m; 302.06.04 Configuraciones no recomendables, Figura 302.12). Lo complementan el Tópico 302.04.05 "Coordinación entre curvas circulares" con la Tabla 302.08 (grupo 2: Segunda y Tercera Clase) para la relación de radios, y el Tópico 302.08 "Transición de peralte" para el peralte entre arcos. Para las curvas inversas enlazadas rigen el Tópico 302.02 "Consideraciones de diseño" (curvas opuestas sin espiral: la tangente debe permitir la transición del peralte) y la Tabla 302.01 (tangente mínima en S). Cuando el grupo incluye radios menores de 45 m rigen además el Tópico 204.03 (velocidad específica) y la Tabla 302.02 con 30 km/h, y si incluye radios menores de 25 m, el Tópico 302.07 "Curvas de vuelta" y la Tabla 302.12. El Tópico 502.07.02 "Curvas compuestas" pertenece al diseño de intersecciones y no se aplica al eje. La justificación técnico-económica que pide el 302.06.02 es, en este proyecto, seguir el trazo existente en zona poblada para evitar expropiaciones y, en los grupos creados por la pasada de tangentes, sustituir una tangente corta entre curvas del mismo sentido (302.06.03); así debe quedar en el expediente.'); A('')
+A('Criterios de la DG-2018 aplicados a cada unión:'); A('')
+A('1. Tópico 302.06.01: "Consisten en dos o más curvas simples de diferente radio, orientadas en la misma dirección, y dispuestas una a continuación de la otra. En general, se evitará el empleo de curvas compuestas, tratando de reemplazarlas por una sola curva."')
+A('2. Tópico 302.06.02 (caso excepcional, policéntrica): "El radio de una de las curvas no será mayor de 1.5 veces el radio de la otra"; "se empleará una transición de peralte determinada acorde a lo establecido en el Tópico 302.08"; "Para una sucesión de curvas de radio decreciente cada curva debe ser de longitud suficiente para permitir una desaceleración gradual."')
+A('3. Tópico 302.04.05 y Tabla 302.08 (grupo 2, Segunda y Tercera Clase): rango admisible del radio de salida en función del radio de entrada para curvas enlazadas sin tangente o con tangente ≤ 200 m. La tabla empieza en 40 m de radio de entrada y nunca admite un radio de salida menor de 50 m; en la tabla el máximo es 1.5 veces el radio de entrada y el mínimo es el radio de entrada entre 1.5, con piso de 50 m.')
+A(f'4. Tópico 302.08: transición de peralte con ipmáx = 1.8 − 0.01·V = {IPMAX:.1f} % y Lmín = (pf − pi)/ipmáx · B, con B = {B_GIRO:.1f} m (media calzada de 6.00 m girando sobre el eje). El peralte de cada curva se toma de la tabla "DG2018 _PMax 12%" del archivo de criterios para 40 km/h (12 % para R ≤ 45 m). En una unión compuesta la diferencia de peralte es |p2 − p1|; en una unión inversa el peralte se invierte y la diferencia es p1 + p2. La transición debe desarrollarse dentro de los arcos, por lo que se compara con sus longitudes.')
+A('5. Curvas inversas: Tabla 302.01 (56 m de tangente mínima en S a 40 km/h) y Tópico 302.02 Consideraciones de diseño ("Las curvas sucesivas en sentidos opuestos, dotadas de curvas de transición, deberán tener sus extremos coincidentes o separados por cortas extensiones en tangente. En el caso de curvas opuestas sin espiral, la extensión mínima de la tangente intermedia deberá permitir la transición del peralte"). Con tangente nula no se cumple; la solución normativa es una tangente de 56 m o clotoides de vértice, ambas fuera del trazo actual.')
+A(f'6. Desaceleración (criterio adoptado: la DG-2018 solo fija 3.4 m/s² para el frenado de la distancia de parada, Tópico 205.01, que no es una desaceleración gradual): entre dos curvas compuestas de radio decreciente se verifica que el primer arco permita pasar de la velocidad específica de la curva de entrada a la de salida con una desaceleración de {DECEL:.1f} m/s², es decir d = (v1² − v2²)/(2·{DECEL:.1f}), con Ve = mín(40, √(127·R·0.29)) km/h.'); A('')
+A('### 6.6.1 Resumen por grupo'); A('')
+A('| Grupo | Tipo | Curvas | Entidades Civil 3D | Prog. inicio | Prog. fin | Radios (m) | Longitudes (m) | Δ total (°) | Relación máx. R/r | ≤ 1.5 (302.06.02) | Tabla 302.08 | Transición 302.08 | Desaceleración | Sep. máx. trazo (m) | Artículos DG-2018 que rigen | Origen y justificación (302.06.02) |')
+A('|----|------|------|------|------|------|------|------|----|----|----|----|----|----|----|----------|----------|')
+for gi,g in enumerate(grupos):
+    us=[u for u in uniones if u[0]==gi+1]
+    rmax=max(u[3]['ratio'] for u in us)
+    A(f"| P-{gi+1} | {tipo_grupo(g)} | {', '.join('C-'+str(r['n']) for r in g)} | {', '.join(str(ent_of.get(r['n']-1,'?')) for r in g)} | {sta(g[0]['sta_PC'])} | {sta(g[-1]['sta_PT'])} | {' / '.join(f'{r['R']:.2f}' for r in g)} | {' / '.join(f'{r['Lc']:.1f}' for r in g)} | {sum(r['delta'] for r in g):.1f} | {rmax:.2f} | {'cumple' if all(u[3]['ok15'] for u in us) else 'no cumple'} | {'cumple' if all(u[3]['t308'] for u in us) else ('fuera de tabla' if all(u[3]['t308'] is None for u in us) else 'no cumple')} | {'cabe' if all(u[3]['tv'].startswith('cabe') for u in us) else 'no cabe'} | {'cumple' if not any('no cumple' in u[3]['dtxt'] for u in us) else 'no cumple'} | {max(r['dmax'] for r in g):.2f} | {norma_grupo(g)} | {origen_grupo(g)} |")
+A('')
+A('### 6.6.2 Detalle de cada unión curva-curva'); A('')
+A('| Grupo | Unión | Relación | R entrada (m) | R salida (m) | R/r | Tabla 302.08 (rango admisible del R de salida) | p entrada / p salida (%) | Δp (%) | L mín. transición (m) | L arcos entrada / salida (m) | Transición | Ve entrada / salida (km/h) | Desaceleración |')
+A('|----|------|------|-----|-----|----|----------|------|----|-----|------|------|------|----------|')
+for gi,a,b,u in uniones:
+    A(f"| P-{gi} | C-{a['n']} → C-{b['n']} | {'compuesta (mismo sentido)' if not u['inv'] else 'inversa (S)'} | {u['Re']:.2f} | {u['Rs']:.2f} | {u['ratio']:.2f} | {u['t308txt']} | {u['pe']:.1f} / {u['ps']:.1f} | {u['dp']:.1f} | {u['lt']:.1f} | {u['La']:.1f} / {u['Lb']:.1f} | {u['tv']} | {u['vea']:.0f} / {u['ves']:.0f} | {u['dtxt']} |")
+A('')
+A(f'Balance: {ok15_n} de {len(uniones)} uniones cumplen la relación de radios 1.5 del Tópico 302.06.02; {t308_ok} cumplen el rango de la Tabla 302.08, {t308_na} quedan fuera de la tabla por tener radio de entrada menor de 40 m y las demás no cumplen; la transición de peralte cabe dentro de los arcos en {trans_ok} uniones; {dec_bad} uniones de radio decreciente no permiten la desaceleración gradual con el criterio adoptado. Las {len(u_inv)} uniones inversas incumplen la tangente mínima de 56 m de la Tabla 302.01 por construcción.'); A('')
+A('Tratamiento recomendado:'); A('')
+A(f"- Grupos de tres o más curvas ({', '.join('P-'+str(i+1)+' ('+tipo_grupo(g)+')' for i,g in enumerate(grupos) if len(g)>=3)}): la DG-2018 solo contempla expresamente la policéntrica de tres centros del mismo sentido (302.06.02); los grupos mixtos y los de cuatro o más curvas deben simplificarse en la revisión del eje, salvo justificación expresa en el expediente.")
+A('- Uniones con R/r > 1.5: ajustar uno de los dos radios (subir el menor o bajar el mayor) dentro de la tolerancia de separación del trazo, o justificar la excepción con las razones técnico-económicas que pide el Tópico 302.06.02.')
+A('- Uniones inversas sin tangente: señalizar como curvas sucesivas y, donde el peralte no cabe, diseñar la transición repartida entre los dos arcos con pérdida de peralte en sus extremos; la corrección geométrica (tangente de 56 m o clotoides) implica expropiación.')
+A('- En Civil 3D, al crear la alineación desde la polilínea, cada curva de estos grupos queda como entidad fija; el script de Dynamo las reconstruye como curva flotante + curva libre para poder editarlas, y el cálculo de peralte con el archivo de criterios debe revisarse en estas uniones porque Civil 3D reparte la transición entre arcos contiguos.')
+A('')
 A('# 7. Pasada de tangentes (Tabla 302.01 y Tópico 302.06.03)'); A('')
 if TP:
     an=TP['antes']; de=TP['despues']; st=TP['stats']
@@ -160,9 +263,10 @@ A(f'1. El eje cumple el radio mínimo de la DG-2018 (45 m a 40 km/h, peralte 12 
 A(f'2. Las {ri0} curvas con radio interior menor de 6 m (zonas V-1, V-3 y otras indicadas en 6.3) no admiten justificación con la DG-2018. Se recomienda ampliar la plataforma en esos puntos o aceptar expropiaciones puntuales.')
 A('3. Los primeros 230 m (zona urbana de inicio) tienen geometría de calles, con radios de 6 a 22 m. Conviene tratar ese tramo como vía urbana con velocidad de 20 a 30 km/h.')
 A('4. Las clotoides, las tangentes mínimas y la longitud mínima de curva no se cumplen por la premisa de seguir el trazo existente. Debe dejarse constancia en el expediente, con la señalización vertical y horizontal correspondiente al Manual de Dispositivos de Control de Tránsito.')
-A('7. Las tangentes en S que siguen por debajo de 56 m deben señalizarse como sector de curvas sucesivas; su corrección geométrica exige expropiación.')
-A('5. En Civil 3D, asociar al eje el archivo de criterios DG2018_Corregido_2.xml con velocidad 40 km/h; los triángulos de advertencia que queden marcan exactamente las curvas de los capítulos 6.2 y 6.3.')
-A('6. Verificar la visibilidad de parada (50 m) con banquetas en las curvas de radio menor a 60 m ubicadas en corte, según el Tópico 302.10.01.')
+A(f'5. Hay {len(grupos)} grupos de curvas enlazadas sin tangente ({len(u_comp)} uniones compuestas y {len(u_inv)} inversas), detallados en el capítulo 6.6. La relación de radios 1.5 se cumple en {ok15_n} de {len(uniones)} uniones; las que no cumplen deben corregirse ajustando radios o justificarse como caso excepcional (Tópico 302.06.02). Los grupos de tres o más curvas que no sean policéntricas puras deben simplificarse o justificarse.')
+A('6. Las tangentes en S que siguen por debajo de 56 m deben señalizarse como sector de curvas sucesivas; su corrección geométrica exige expropiación.')
+A('7. En Civil 3D, asociar al eje el archivo de criterios DG2018_Corregido_2.xml con velocidad 40 km/h; los triángulos de advertencia que queden marcan exactamente las curvas de los capítulos 6.2 y 6.3.')
+A('8. Verificar la visibilidad de parada (50 m) con banquetas en las curvas de radio menor a 60 m ubicadas en corte, según el Tópico 302.10.01.')
 A('')
 A('# Anexo A. Tabla completa de curvas'); A('')
 A('| Curva | Prog. PI | Norte PI | Este PI | Δ (°) | Sent. | R (m) | T (m) | Lc (m) | E (m) | Prog. PC | Prog. PT | Sa (m) | Tang. sig. (m) | Sep. (m) | Clase |')
@@ -179,5 +283,8 @@ A('- `EJE_DG2018_circular_PI_PNEZD.csv` y `EJE_DG2018_circular_PI_polilinea.scr`
 A('- `EJE_DG2018_circular_planta.svg` y `.png`: croquis de planta con el trazo actual y el eje coloreado por clase de curva.')
 A('- `DG2018_Corregido_2.xml`: archivo de criterios de diseño DG-2018 para Civil 3D.')
 A('- `EJE_DG2018_clotoides.xml`: variante con clotoides de 40 m en las 5 curvas donde caben.')
+A('- `EJE_DG2018_circular_polilinea_arcos.dxf`: polilínea con arcos para crear la alineación en Civil 3D por PIs (líneas fijas y curvas libres).')
+A('- `EJE_DG2018_circular_entidades_C3D.csv` y `EJE_DG2018_circular_grupos_sin_tangente.csv`: correspondencia entidad de Civil 3D ↔ curva y lista de los grupos del capítulo 6.6 con los pasos para rehacerlos como curva flotante + curva libre.')
+A('- `scripts/civil3d_crear_alineacion_dynamo.py`: script de Dynamo que crea la alineación entidad por entidad con sus restricciones.')
 out='/tmp/claude-0/-home-user-Normas/1d8bfce3-3294-5b1e-ace9-ad5fa4f1a13c/scratchpad/rep/memoria.md'
 open(out,'w',encoding='utf-8').write('\n'.join(L)+'\n'); print('md ok', len(L), 'lineas;', 'at45',len(at45),'exc',len(excs),'vol',len(vols),'ri',ri8,ri6,ri0,'tan_ok',tan_ok,'hot',len(hot),'small',len(small))
