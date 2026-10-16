@@ -154,6 +154,9 @@ def construir(ruta_xml, nombre, ruta_criterios, velocidad):
 
     def P(p): return Point3d(p[0], p[1], 0.0)
     def V(v): return Vector3d(v[0], v[1], 0.0)
+    def firmas(metodo):
+        ov = getattr(metodo, '__overloads__', None) or getattr(metodo, 'Overloads', None)
+        return str(ov) if ov is not None else '?'
     ctype = {'Compound': CurveType.Compound, 'Reverse': CurveType.Reverse}
 
     with adoc.LockDocument():
@@ -163,8 +166,19 @@ def construir(ruta_xml, nombre, ruta_criterios, velocidad):
                 if t.GetObject(aid, OpenMode.ForRead).Name == nombre:
                     raise Exception('Ya existe una alineación llamada "%s": bórrala o cambia el nombre (IN[1])' % nombre)
             capa = t.GetObject(db.Clayer, OpenMode.ForRead).Name
-            estilo = t.GetObject(civdoc.Styles.AlignmentStyles[0], OpenMode.ForRead).Name
-            etiquetas = t.GetObject(civdoc.Styles.LabelSetStyles.AlignmentLabelSetStyles[0], OpenMode.ForRead).Name
+            def primer_estilo(coleccion, por_defecto):
+                # la colección de estilos no admite índice numérico: se recorre y se toma el primero
+                try:
+                    for sid in coleccion:
+                        return t.GetObject(sid, OpenMode.ForRead).Name
+                except Exception:
+                    en = coleccion.GetEnumerator()
+                    if en.MoveNext():
+                        return t.GetObject(en.Current, OpenMode.ForRead).Name
+                return por_defecto
+            estilo = primer_estilo(civdoc.Styles.AlignmentStyles, 'Standard')
+            etiquetas = primer_estilo(civdoc.Styles.LabelSetStyles.AlignmentLabelSetStyles, 'Standard')
+            msgs.append('capa: %s | estilo: %s | etiquetas: %s' % (capa, estilo, etiquetas))
             t.Commit()
         align_id = Alignment.Create(civdoc, nombre, '', capa, estilo, etiquetas)   # '' = sin emplazamiento (site)
 
@@ -183,7 +197,8 @@ def construir(ruta_xml, nombre, ruta_criterios, velocidad):
                         try:
                             arc = ents.AddFloatingCurve(prev, P(e['B']), float(e['R']), mayor180, ctype[tipo_curva(elems, k)])
                         except Exception as ex1:
-                            msgs.append('elem %d: AddFloatingCurve(radio) falló (%s); se usa punto de paso + dirección' % (k + 1, ex1))
+                            if n_flot == 0:
+                                msgs.append('AddFloatingCurve(radio) falló: %s | firmas: %s' % (ex1, firmas(ents.AddFloatingCurve)))
                             arc = ents.AddFloatingCurve(prev, P(e['B']), V(direccion_salida(e)))
                         ids[k] = arc.EntityId; n_flot += 1
                     else:  # LIBRE
@@ -191,11 +206,13 @@ def construir(ruta_xml, nombre, ruta_criterios, velocidad):
                         try:
                             arc = ents.AddFreeCurve(prev, nxt, float(e['R']), CurveParamType.Radius, mayor180, ctype[tipo_curva(elems, k)])
                         except Exception as ex1:
-                            msgs.append('elem %d: AddFreeCurve(radio) falló (%s); se usa punto de paso' % (k + 1, ex1))
+                            if n_lib == 0:
+                                msgs.append('AddFreeCurve(radio) falló: %s | firmas: %s' % (ex1, firmas(ents.AddFreeCurve)))
                             arc = ents.AddFreeCurve(prev, nxt, P(punto_medio_arco(e)))
                         ids[k] = arc.EntityId; n_lib += 1
                 except Exception as ex:
-                    msgs.append('ERROR elem %d (%s, R=%s): %s' % (k + 1, op[0], e.get('R', '-'), ex))
+                    if len([m for m in msgs if m.startswith('ERROR')]) < 10:
+                        msgs.append('ERROR elem %d (%s, R=%s): %s' % (k + 1, op[0], e.get('R', '-'), ex))
             # velocidad de diseño y archivo de criterios (opcional)
             try:
                 align.DesignSpeeds.Add(0.0, float(velocidad))
