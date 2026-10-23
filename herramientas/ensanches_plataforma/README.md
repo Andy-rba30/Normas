@@ -26,34 +26,36 @@ en Civil 3D / AutoCAD.
 | Separación máxima **a cada lado** | **2,500 m** |
 | Disposición | a cada lado de la carretera, **en forma alternada**, con transiciones de ingreso y salida |
 
-## Resultado: 22 ensanches (11 izquierda + 11 derecha), todos con el núcleo en tangente, volumen adicional estimado ≈ 1571 m³
+## Resultado: 24 ensanches (12 izquierda + 12 derecha), **sin interferencias**, 23 de 24 con el núcleo en tangente, volumen adicional estimado ≈ 1924 m³
 
 Lado IZQ/DER = izquierda/derecha **en el sentido de las progresivas crecientes** del eje `eje 01`
-(convención de Civil 3D). **Numeración independiente por lado**: `EI-01…EI-11` (izquierda) y `ED-01…ED-11`
+(convención de Civil 3D). **Numeración independiente por lado**: `EI-01…EI-12` (izquierda) y `ED-01…ED-12`
 (derecha); la columna "Orden" es la posición a lo largo de la vía. Cada ensanche = núcleo de 25 m (ancho 2.5 m)
 + transición de ingreso y de salida de 15 m (afinamiento 1:6). "km centro" es el centro del núcleo.
 
-| Orden | Nombre | Lado | km centro | Tramo total (con transiciones) | Núcleo en tangente | Transiciones en tangente | Vol. adic. (m³) | Corte (m³) | Relleno (m³) | h borde (m) | TIN extrap. |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| 1 | EI-01 | IZQ | 1+245.00 | 1+217.50 – 1+272.50 | sí | no | 20 | 2 | 19 | -0.64 |  |
-| 3 | EI-02 | IZQ | 3+530.00 | 3+502.50 – 3+557.50 | sí | no | 9 | 5 | 4 | -0.63 |  |
-| 5 | EI-03 | IZQ | 5+900.00 | 5+872.50 – 5+927.50 | sí | no | 41 | 0 | 41 | -0.28 |  |
-| 7 | EI-04 | IZQ | 8+045.00 | 8+017.50 – 8+072.50 | sí | no | 11 | 10 | 1 | -0.49 | sí |
-| 9 | EI-05 | IZQ | 9+660.00 | 9+632.50 – 9+687.50 | sí | no | 22 | 10 | 12 | -0.81 |  |
-| 11 | EI-06 | IZQ | 12+105.00 | 12+077.50 – 12+132.50 | sí | no | 25 | 0 | 25 | -0.42 |  |
-| 13 | EI-07 | IZQ | 14+250.00 | 14+222.50 – 14+277.50 | sí | no | 94 | 93 | 1 | -0.48 | sí |
-| 15 | EI-08 | IZQ | 16+485.00 | 16+457.50 – 16+512.50 | sí | sí | 190 | 190 | 1 | -0.16 |  |
-| 17 | EI-09 | IZQ | 18+940.00 | 18+912.50 – 18+967.50 | sí | no | 119 | 116 | 3 | -0.18 |  |
-| 19 | EI-10 | IZQ | 21+375.00 | 21+347.50 – 21+402.50 | sí | no | 65 | 64 | 1 | -0.33 |  |
-| 21 | EI-11 | IZQ | 23+680.00 | 23+652.50 – 23+707.50 | sí | no | 64 | 63 | 1 | -0.37 |  |
-| 2 | ED-01 | DER | 2+260.00 | 2+232.50 – 2+287.50 | sí | no | 354 | 353 | 1 | -0.56 | sí |
-| 4 | ED-02 | DER | 4+425.00 | 4+397.50 – 4+452.50 | sí | no | 97 | 96 | 1 | -0.56 | sí |
-| 6 | ED-03 | DER | 6+730.00 | 6+702.50 – 6+757.50 | sí | no | 51 | 12 | 39 | +0.08 |  |
-| 8 | ED-04 | DER | 8+790.00 | 8+762.50 – 8+817.50 | sí | no | 88 | 24 | 64 | -1.04 |  |
-| 10 | ED-05 | DER | 11+265.00 | 11+237.50 – 11+292.50 | sí | no | 220 | 218 | 1 | -0.25 | sí |
-| 12 | ED-06 | DER | 13+690.00 | 13+662.50 – 13+717.50 | sí | no | 30 | 30 | 0 | -0.15 |  |
-| 14 | ED-07 | DER | 16+005.00 | 15+977.50 – 16+032.50 | sí | no | 25 | 1 | 24 | -0.30 |  |
-| 16 | ED-08 | DER | 18+455.00 | 18+427.50 – 18+482.50 | sí | no | 13 | 4 | 9 | -0.77 | sí |
-| 18 | ED-09 | DER | 20+880.00 | 20+852.50 – 20+907.50 | sí | no | 7 | 6 | 1 | -0.39 |  |
-| 20 | ED-10 | DER | 22+215.00 | 22+187.50 – 22+242.50 | sí | no | 1 | 1 | 0 | -0.19 |  |
-| 22 | ED-11 | DER | 24+300.00 | 24+272.50 – 24+327.50 | sí | sí | 24 | 16 | 9 | -0.34 |  |
+| Orden | Nombre | Lado | km centro | Tramo total (con transiciones) | Núcleo en tangente | Transiciones en tangente | Interferencia | Vol. adic. (m³) | Corte (m³) | Relleno (m³) | h borde (m) | TIN extrap. |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2 | EI-01 | IZQ | 2+260.00 | 2+232.50 – 2+287.50 | sí | no | ninguna | 51 | 1 | 49 | +0.77 |  |
+| 4 | EI-02 | IZQ | 4+455.00 | 4+427.50 – 4+482.50 | sí | sí | ninguna | 50 | 11 | 40 | -0.74 |  |
+| 6 | EI-03 | IZQ | 6+725.00 | 6+697.50 – 6+752.50 | sí | no | ninguna | 20 | 3 | 17 | +0.05 |  |
+| 8 | EI-04 | IZQ | 9+005.00 | 8+977.50 – 9+032.50 | sí | no | ninguna | 74 | 0 | 74 | -0.97 |  |
+| 10 | EI-05 | IZQ | 11+280.00 | 11+252.50 – 11+307.50 | sí | no | ninguna | 87 | 0 | 87 | -0.08 |  |
+| 12 | EI-06 | IZQ | 12+910.00 | 12+882.50 – 12+937.50 | sí | no | ninguna | 7 | 3 | 5 | -1.05 |  |
+| 14 | EI-07 | IZQ | 14+625.00 | 14+597.50 – 14+652.50 | sí | no | ninguna | 195 | 195 | 1 | -0.25 | sí |
+| 16 | EI-08 | IZQ | 17+055.00 | 17+027.50 – 17+082.50 | sí | no | ninguna | 118 | 117 | 1 | -0.54 | sí |
+| 18 | EI-09 | IZQ | 19+055.00 | 19+027.50 – 19+082.50 | sí | no | ninguna | 112 | 112 | 0 | -0.75 |  |
+| 20 | EI-10 | IZQ | 21+375.00 | 21+347.50 – 21+402.50 | sí | no | ninguna | 65 | 64 | 1 | -0.33 |  |
+| 22 | EI-11 | IZQ | 23+390.00 | 23+362.50 – 23+417.50 | sí | no | ninguna | 81 | 81 | 0 | -0.69 |  |
+| 24 | EI-12 | IZQ | 24+970.00 | 24+942.50 – 24+997.50 | sí | no | ninguna | 66 | 65 | 1 | -0.35 |  |
+| 1 | ED-01 | DER | 1+245.00 | 1+217.50 – 1+272.50 | sí | no | ninguna | 232 | 212 | 20 | -0.07 |  |
+| 3 | ED-02 | DER | 3+165.00 | 3+137.50 – 3+192.50 | sí | no | ninguna | 142 | 141 | 0 | -0.05 | sí |
+| 5 | ED-03 | DER | 5+645.00 | 5+617.50 – 5+672.50 | sí | sí | ninguna | 228 | 212 | 15 | -0.18 |  |
+| 7 | ED-04 | DER | 7+980.00 | 7+952.50 – 8+007.50 | sí | no | ninguna | 31 | 1 | 30 | -0.05 |  |
+| 9 | ED-05 | DER | 9+915.00 | 9+887.50 – 9+942.50 | R=200 | no | ninguna | 21 | 4 | 17 | -0.15 |  |
+| 11 | ED-06 | DER | 12+015.00 | 11+987.50 – 12+042.50 | sí | no | ninguna | 211 | 210 | 1 | -1.66 |  |
+| 13 | ED-07 | DER | 14+115.00 | 14+087.50 – 14+142.50 | sí | no | ninguna | 12 | 11 | 1 | -0.79 | sí |
+| 15 | ED-08 | DER | 16+005.00 | 15+977.50 – 16+032.50 | sí | no | ninguna | 25 | 1 | 24 | -0.30 |  |
+| 17 | ED-09 | DER | 18+455.00 | 18+427.50 – 18+482.50 | sí | no | ninguna | 13 | 4 | 9 | -0.77 | sí |
+| 19 | ED-10 | DER | 20+880.00 | 20+852.50 – 20+907.50 | sí | no | ninguna | 7 | 6 | 1 | -0.39 |  |
+| 21 | ED-11 | DER | 22+595.00 | 22+567.50 – 22+622.50 | sí | no | ninguna | 51 | 51 | 0 | -0.41 | sí |
+| 23 | ED-12 | DER | 24+300.00 | 24+272.50 – 24+327.50 | sí | sí | ninguna | 24 | 16 | 9 | -0.34 |  |
