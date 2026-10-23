@@ -103,7 +103,7 @@ def escribir_landxml(path, crs, ensanches, puntos):
 
 
 # ----------------------------------------------------------------------------- SVG
-def escribir_svg(path, eje_xy, ensanches, sta, costo, sel_idx, L):
+def escribir_svg(path, eje_xy, ensanches, sta, costo, sel_idx, L, tangente=None):
     W = 1400
     xs, ys = eje_xy
     x0, x1, y0, y1 = xs.min(), xs.max(), ys.min(), ys.max()
@@ -134,6 +134,17 @@ def escribir_svg(path, eje_xy, ensanches, sta, costo, sel_idx, L):
     def px(st): return 40 + st / L * (W - 80)
     def py(v): return top + hgt - min(v, vmax) / vmax * hgt
     s.append('<rect x="40" y="%d" width="%d" height="%d" fill="none" stroke="#999"/>' % (top, W - 80, hgt))
+    if tangente is not None:      # franjas verdes = núcleo del ensanche cabe en tangente
+        i = 0
+        while i < len(sta):
+            if tangente[i]:
+                j = i
+                while j + 1 < len(sta) and tangente[j + 1]:
+                    j += 1
+                s.append('<rect x="%.1f" y="%d" width="%.2f" height="%d" fill="#2ca02c" fill-opacity="0.18"/>' % (px(sta[i]), top, max(px(sta[j]) - px(sta[i]), 0.6), hgt))
+                i = j + 1
+            else:
+                i += 1
     for v in (0, 100, 200, 300, 400, 500, 600):
         s.append('<line x1="40" y1="%.1f" x2="%d" y2="%.1f" stroke="#eee"/><text x="4" y="%.1f" font-size="9">%d</text>' % (py(v), W - 40, py(v), py(v) + 3, v))
     for k in range(0, int(L) + 1, 1000):
@@ -154,6 +165,6 @@ def escribir_svg(path, eje_xy, ensanches, sta, costo, sel_idx, L):
         col = '#d62728' if e['lado'] == 'IZQ' else '#1f77b4'
         s.append('<line x1="%.1f" y1="%d" x2="%.1f" y2="%d" stroke="%s" stroke-width="1.5" stroke-dasharray="4 3"/>' % (px(e['sta']), top, px(e['sta']), top + hgt, col))
         s.append('<text x="%.1f" y="%d" font-size="9" text-anchor="middle" fill="%s">%s</text>' % (px(e['sta']), top - 2 if e['lado'] == 'IZQ' else top + hgt + 24, col, e['nombre']))
-    s.append('<text x="40" y="%d" font-size="11">km (eje "eje 01"); tramos sin curva = sin candidato (nucleo en curva R &lt; R min, sin empalme de talud o fuera del TIN)</text>' % (top + hgt + 40))
+    s.append('<text x="40" y="%d" font-size="11">km (eje "eje 01"). Franjas verdes = el nucleo de 25 m cabe en tangente. Tramos sin curva de costo = sin candidato (R &lt; R min, sin empalme de talud o fuera del TIN)</text>' % (top + hgt + 40))
     s.append('</svg>')
     open(path, 'w', encoding='utf-8').write('\n'.join(s))

@@ -32,6 +32,9 @@ def main():
     ap.add_argument('--transicion', type=float, default=15.0, help='longitud de transición de ingreso y de salida (1:6)')
     ap.add_argument('--gap-min', type=float, default=400.0, help='separación mínima entre ensanches consecutivos de lados opuestos')
     ap.add_argument('--r-min', type=float, default=60.0, help='radio mínimo de curva admitido dentro del núcleo del ensanche')
+    ap.add_argument('--pen-curva', type=float, default=150.0, help='penalización (m3 equivalentes) si el núcleo toca una curva')
+    ap.add_argument('--pen-curva-r', type=float, default=150.0, help='penalización adicional (m3 eq.) x (100 m / R mín. del núcleo)')
+    ap.add_argument('--pen-trans', type=float, default=10.0, help='penalización (m3 eq.) x (100 m / R mín.) si una transición toca una curva')
     ap.add_argument('--borde-tramo', type=float, default=100.0, help='zona excluida al inicio y fin del tramo')
     ap.add_argument('--berma', type=float, default=0.0, help='ancho de berma existente a añadir al borde de calzada')
     ap.add_argument('--paso', type=float, default=5.0, help='paso de análisis a lo largo del eje')
@@ -56,20 +59,29 @@ def main():
     half = a.largo / 2
     rmin_core = radio_min_en(sta, res['curv'], np.arange(-half, half + 0.01, a.paso / 2))
     rmin_full = radio_min_en(sta, res['curv'], np.arange(-half - a.transicion, half + a.transicion + 0.01, a.paso / 2))
-    costo = {}; vol_corte = {}; vol_rell = {}
+    # preferencia por tramos en tangente: penalización en m3 equivalentes (0 si el núcleo está todo en recta)
+    nucleo_curva = np.isfinite(rmin_core)
+    trans_curva = np.isfinite(rmin_full)
+    pen = np.zeros(len(sta))
+    pen[nucleo_curva] = a.pen_curva + a.pen_curva_r * (100.0 / rmin_core[nucleo_curva])
+    pen[trans_curva & ~nucleo_curva] = a.pen_trans * (100.0 / rmin_full[trans_curva & ~nucleo_curva])
+    costo = {}; vol_corte = {}; vol_rell = {}; vol_tierra = {}
     for lado in ('IZQ', 'DER'):
         vol_corte[lado] = costo_ensanche(sta, res[lado], a.ancho, a.largo, a.transicion, 1.0, 0.0)
         vol_rell[lado] = costo_ensanche(sta, res[lado], a.ancho, a.largo, a.transicion, 0.0, 1.0)
         v = costo_ensanche(sta, res[lado], a.ancho, a.largo, a.transicion, 1.0, a.k_relleno)
         v = np.where(rmin_core < a.r_min, np.nan, v)
+        vol_tierra[lado] = v
         v = np.where(rmin_full < a.r_min, v * 1.2, v)      # transición dentro de curva cerrada: +20 %
-        costo[lado] = v
-        print('  %s: %d progresivas candidatas de %d' % (lado, int(np.isfinite(v).sum()), len(v)))
+        costo[lado] = v + pen
+        print('  %s: %d progresivas candidatas de %d (%d con núcleo en tangente)' % (lado, int(np.isfinite(v).sum()), len(v), int((np.isfinite(v) & ~nucleo_curva).sum())))
 
     seq, total = optimizar(sta, costo, a.sep_max, a.gap_min, a.borde_tramo)
     if seq is None:
         print('No se encontró una solución que cumpla las restricciones; relaje --r-min, --gap-min o --sep-max'); sys.exit(2)
-    print('Solución: %d ensanches, volumen adicional total estimado %.0f m3 (%.1fs)' % (len(seq), total, time.time() - t0))
+    vol_total = sum(vol_tierra[l][i] for i, l in seq)
+    n_tang = sum(1 for i, l in seq if not nucleo_curva[i]); n_tang_full = sum(1 for i, l in seq if not trans_curva[i])
+    print('Solución: %d ensanches, volumen adicional total estimado %.0f m3; %d con núcleo en tangente (%d con transiciones también en tangente) (%.1fs)' % (len(seq), vol_total, n_tang, n_tang_full, time.time() - t0))
     # verificación explícita de las restricciones normativas y de diseño
     st = [sta[i] for i, _ in seq]; ld = [l for _, l in seq]
     ok = all(ld[k] != ld[k + 1] for k in range(len(ld) - 1))
@@ -137,10 +149,15 @@ def main():
         r = res[lado]
         corte = float(vol_corte[lado][i]); rell = float(vol_rell[lado][i])
         x, y, th, _ = eje.locate(np.array([c]))
+        iseg = int(np.clip(np.searchsorted(eje.sta_ini, c, side='right') - 1, 0, len(eje.segs) - 1))
+        seg = eje.segs[iseg]
         e = dict(n=orden, nombre=nombre, lado=lado, sta=c, km=km(c), sta_ini_trans=s_a, sta_ini=c - half, sta_fin=c + half, sta_fin_trans=s_b,
+                 nucleo_tangente=not nucleo_curva[i], transiciones_tangente=not trans_curva[i],
+                 tangente_km='%s - %s (%.0f m)' % (km(seg[1]), km(seg[1] + seg[2]), seg[2]) if seg[0] == 'L' else '',
+                 costo_opt=float(costo[lado][i]),
                  x=float(x[0]), y=float(y[0]), z_ras=float(ras.elev(np.array([c]))[0]), d0=float(r['d0'][i]),
                  ancho_plataforma_ens=float(r['d0'][i] + np.abs(res['DER' if lado == 'IZQ' else 'IZQ']['d0'][i]) + a.ancho),
-                 vol_add=float(costo[lado][i]), corte_add=corte, relleno_add=rell, h_borde=float(r['h_borde'][i]),
+                 vol_add=float(vol_tierra[lado][i]), corte_add=corte, relleno_add=rell, h_borde=float(r['h_borde'][i]),
                  pend_terreno=float(r['pend_terreno'][i]) if np.isfinite(r['pend_terreno'][i]) else None,
                  seccion='corte' if r['corte_base'][i] > 0 else 'relleno', r_min=float(rmin_core[i]) if np.isfinite(rmin_core[i]) else None,
                  tin_extrapolado=bool(np.nanmax(r['extrapolado'][max(0, i - 6):i + 7]) > 0),
@@ -156,7 +173,7 @@ def main():
         pc = eje.offset_points(np.array([c]), np.array([sgn * (dc + a.ancho + 2.0)]))
         dxf.text((pc[0][0], pc[1][0]), '%s %s km %s' % (nombre, lado, km(c)), lay + '_TEXTO', h=2.5, rot=ang)
         pc2 = eje.offset_points(np.array([c]), np.array([sgn * (dc + a.ancho + 5.5)]))
-        dxf.text((pc2[0][0], pc2[1][0]), '%.1fx%.0f m  +%.0f m3' % (a.ancho, a.largo, costo[lado][i]), lay + '_TEXTO', h=2.0, rot=ang)
+        dxf.text((pc2[0][0], pc2[1][0]), '%.1fx%.0f m  +%.0f m3  %s' % (a.ancho, a.largo, vol_tierra[lado][i], 'TANGENTE' if not nucleo_curva[i] else 'CURVA R=%.0f' % rmin_core[i]), lay + '_TEXTO', h=2.0, rot=ang)
         # marcas de ubicación rápida: centro (grande), inicio y fin del ensanche (medianas)
         marca_centro(dxf, c, sgn, lay + '_MARCA', '%s %s' % (nombre, lado), 'km %s' % km(c))
         marca_extremo(dxf, c - half, c, sgn, lay + '_MARCA', '%s INICIO km %s' % (nombre, km(c - half)), dc + a.ancho)
@@ -192,8 +209,8 @@ def main():
             xi, yi = eje.offset_points(ss, sgn * d0); xo, yo = eje.offset_points(ss, sgn * (d0 + wss))
             dxf.polyline(list(zip(xi, yi)) + list(zip(xo[::-1], yo[::-1])), 'ENSANCHE_ALTERNATIVAS', closed=True)
             pc = eje.offset_points(np.array([c]), np.array([sgn * (d0[len(d0) // 2] + a.ancho + 2.0)]))
-            dxf.text((pc[0][0], pc[1][0]), 'ALT %s km %s +%.0f m3' % (lado, km(c), v[i]), 'ENSANCHE_ALTERNATIVAS', h=1.5)
-            alternativas.append(dict(lado=lado, sta=float(c), km=km(c), vol_add=float(v[i]), vol_corte=float(vol_corte[lado][i]), vol_relleno=float(vol_rell[lado][i])))
+            dxf.text((pc[0][0], pc[1][0]), 'ALT %s km %s +%.0f m3 %s' % (lado, km(c), vol_tierra[lado][i], 'TANG' if not nucleo_curva[i] else 'R=%.0f' % rmin_core[i]), 'ENSANCHE_ALTERNATIVAS', h=1.5)
+            alternativas.append(dict(lado=lado, sta=float(c), km=km(c), vol_add=float(vol_tierra[lado][i]), vol_corte=float(vol_corte[lado][i]), vol_relleno=float(vol_rell[lado][i]), nucleo_tangente=bool(not nucleo_curva[i])))
 
     # ---- archivos
     base = os.path.join(a.salida, 'ensanches_plataforma')
@@ -203,24 +220,24 @@ def main():
         w = csv.writer(f)
         for n, (nm, code, desc, x, y, z) in enumerate(puntos, 1):
             w.writerow([n, '%.4f' % y, '%.4f' % x, '%.3f' % z, '%s %s' % (nm, desc)])
-    cols = ['orden', 'nombre', 'lado', 'km', 'sta', 'sta_ini_trans', 'sta_ini', 'sta_fin', 'sta_fin_trans', 'x', 'y', 'z_ras', 'd0', 'ancho_plataforma_ens', 'vol_add', 'corte_add', 'relleno_add', 'h_borde', 'pend_terreno', 'seccion', 'r_min', 'tin_extrapolado']
+    cols = ['orden', 'nombre', 'lado', 'km', 'sta', 'sta_ini_trans', 'sta_ini', 'sta_fin', 'sta_fin_trans', 'nucleo_tangente', 'transiciones_tangente', 'tangente_km', 'r_min', 'x', 'y', 'z_ras', 'd0', 'ancho_plataforma_ens', 'vol_add', 'corte_add', 'relleno_add', 'h_borde', 'pend_terreno', 'seccion', 'tin_extrapolado']
     with open(base + '_tabla.csv', 'w', newline='', encoding='utf-8') as f:
         w = csv.writer(f); w.writerow([{'x': 'x_este', 'y': 'y_norte'}.get(c, c) for c in cols])
         for e in sorted(ens, key=lambda e: (e['lado'] != 'IZQ', e['sta'])):      # primero todos los IZQ, luego los DER
             w.writerow([e['n'], e['nombre'], e['lado'], e['km']] + ['%.2f' % e[c] if isinstance(e[c], float) else e[c] for c in cols[4:]])
     with open(base + '_costo_por_progresiva.csv', 'w', newline='', encoding='utf-8') as f:
-        w = csv.writer(f); w.writerow(['sta', 'km', 'x_este', 'y_norte', 'R_min_nucleo', 'd0_izq', 'area_corte_izq', 'area_relleno_izq', 'vol_ensanche_izq', 'd0_der', 'area_corte_der', 'area_relleno_der', 'vol_ensanche_der'])
+        w = csv.writer(f); w.writerow(['sta', 'km', 'x_este', 'y_norte', 'R_min_nucleo', 'R_min_con_transiciones', 'penalizacion_curva_m3eq', 'd0_izq', 'area_corte_izq', 'area_relleno_izq', 'vol_ensanche_izq', 'd0_der', 'area_corte_der', 'area_relleno_der', 'vol_ensanche_der'])
         for i in range(len(sta)):
-            w.writerow(['%.1f' % sta[i], km(sta[i]), '%.3f' % res['x'][i], '%.3f' % res['y'][i], '%.0f' % rmin_core[i] if np.isfinite(rmin_core[i]) else 'tangente'] +
-                       sum([['%.2f' % res[l]['d0'][i], ('%.2f' % res[l]['corte_add'][i]) if np.isfinite(res[l]['corte_add'][i]) else '', ('%.2f' % res[l]['relleno_add'][i]) if np.isfinite(res[l]['relleno_add'][i]) else '', ('%.0f' % costo[l][i]) if np.isfinite(costo[l][i]) else ''] for l in ('IZQ', 'DER')], []))
+            w.writerow(['%.1f' % sta[i], km(sta[i]), '%.3f' % res['x'][i], '%.3f' % res['y'][i], '%.0f' % rmin_core[i] if np.isfinite(rmin_core[i]) else 'tangente', '%.0f' % rmin_full[i] if np.isfinite(rmin_full[i]) else 'tangente', '%.0f' % pen[i]] +
+                       sum([['%.2f' % res[l]['d0'][i], ('%.2f' % res[l]['corte_add'][i]) if np.isfinite(res[l]['corte_add'][i]) else '', ('%.2f' % res[l]['relleno_add'][i]) if np.isfinite(res[l]['relleno_add'][i]) else '', ('%.0f' % vol_tierra[l][i]) if np.isfinite(vol_tierra[l][i]) else ''] for l in ('IZQ', 'DER')], []))
     x, y, _, _ = eje.locate(sta)
-    escribir_svg(base + '_vista_previa.svg', (x, y), ens, sta, costo, [i for i, _ in seq], eje.length)
+    escribir_svg(base + '_vista_previa.svg', (x, y), ens, sta, vol_tierra, [i for i, _ in seq], eje.length, tangente=~nucleo_curva)
     with open(base + '_resumen.json', 'w', encoding='utf-8') as f:
-        json.dump(dict(parametros=vars(a), seccion=PARAM, total_m3=total, ensanches=[{k: v for k, v in e.items() if k != 'poligono'} for e in ens], alternativas=alternativas), f, ensure_ascii=False, indent=1)
+        json.dump(dict(parametros=vars(a), seccion=PARAM, total_m3=vol_total, total_costo_opt=total, n_nucleo_tangente=n_tang, n_todo_tangente=n_tang_full, ensanches=[{k: v for k, v in e.items() if k != 'poligono'} for e in ens], alternativas=alternativas), f, ensure_ascii=False, indent=1)
     print('Archivos escritos en', os.path.abspath(a.salida))
-    print('\n %-3s %-6s %-4s %-12s %-22s %8s %8s %8s %7s %7s %-8s %s' % ('Ord', 'Nombre', 'Lado', 'km centro', 'tramo (inicio-fin trans.)', 'Vol m3', 'Corte', 'Relleno', 'h bor.', 'Rmin', 'Secc.', 'TIN ext.'))
+    print('\n %-3s %-6s %-4s %-12s %-22s %-7s %-7s %8s %8s %8s %7s %-8s %s' % ('Ord', 'Nombre', 'Lado', 'km centro', 'tramo (inicio-fin trans.)', 'Nucleo', 'Trans.', 'Vol m3', 'Corte', 'Relleno', 'h bor.', 'Secc.', 'TIN ext.'))
     for e in ens:
-        print(' %-3d %-6s %-4s %-12s %-22s %8.0f %8.0f %8.0f %7.2f %7s %-8s %s' % (e['n'], e['nombre'], e['lado'], e['km'], '%s - %s' % (km(e['sta_ini_trans']), km(e['sta_fin_trans'])), e['vol_add'], e['corte_add'], e['relleno_add'], e['h_borde'], ('%.0f' % e['r_min']) if e['r_min'] else 'tang.', e['seccion'], 'si' if e['tin_extrapolado'] else ''))
+        print(' %-3d %-6s %-4s %-12s %-22s %-7s %-7s %8.0f %8.0f %8.0f %7.2f %-8s %s' % (e['n'], e['nombre'], e['lado'], e['km'], '%s - %s' % (km(e['sta_ini_trans']), km(e['sta_fin_trans'])), 'tang.' if e['nucleo_tangente'] else 'R=%.0f' % e['r_min'], 'tang.' if e['transiciones_tangente'] else 'curva', e['vol_add'], e['corte_add'], e['relleno_add'], e['h_borde'], e['seccion'], 'si' if e['tin_extrapolado'] else ''))
     return 0
 
 
