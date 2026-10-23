@@ -1,0 +1,27 @@
+nombre,lado,alineamiento_offset,sta_inicio_transicion,sta_inicio_ancho_completo,sta_fin_ancho_completo,sta_fin_transicion,long_transicion_entrada,long_transicion_salida,offset_nominal_borde,offset_ensanchado,signo_civil3d,solapa_sobreancho_curva,observacion
+EI-01,IZQ,carril,1817.50,1832.50,1857.50,1872.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-02,IZQ,carril,3002.50,3017.50,3042.50,3057.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-03,IZQ,carril,5022.50,5037.50,5062.50,5077.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-04,IZQ,carril,7017.50,7032.50,7057.50,7072.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-05,IZQ,carril,8977.50,8992.50,9017.50,9032.50,15.0,15.0,3.30,5.80,negativo (izq.),SI,usar target de corredor (feature line ENSANCHE_*_BORDE_3D)
+EI-06,IZQ,carril,10717.50,10732.50,10757.50,10772.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-07,IZQ,carril,12087.50,12102.50,12127.50,12142.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-08,IZQ,carril,13697.50,13712.50,13737.50,13752.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-09,IZQ,carril,15977.50,15992.50,16017.50,16032.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-10,IZQ,carril,18012.50,18027.50,18052.50,18067.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-11,IZQ,carril,20092.50,20107.50,20132.50,20147.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-12,IZQ,carril,22207.50,22222.50,22247.50,22262.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+EI-13,IZQ,carril,24242.50,24257.50,24282.50,24297.50,15.0,15.0,3.30,5.80,negativo (izq.),NO,Add Widening directo
+ED-01,DER,carril (6),2232.50,2247.50,2272.50,2287.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-02,DER,carril (6),4397.50,4412.50,4437.50,4452.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-03,DER,carril (6),5662.50,5677.50,5702.50,5717.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-04,DER,carril (6),7952.50,7967.50,7992.50,8007.50,15.0,15.0,3.30,5.80,positivo (der.),SI,usar target de corredor (feature line ENSANCHE_*_BORDE_3D)
+ED-05,DER,carril (6),9887.50,9902.50,9927.50,9942.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-06,DER,carril (6),11542.50,11557.50,11582.50,11597.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-07,DER,carril (6),12882.50,12897.50,12922.50,12937.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-08,DER,carril (6),14272.50,14287.50,14312.50,14327.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-09,DER,carril (6),16607.50,16622.50,16647.50,16662.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-10,DER,carril (6),18792.50,18807.50,18832.50,18847.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-11,DER,carril (6),21157.50,21172.50,21197.50,21212.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-12,DER,carril (6),23412.50,23427.50,23452.50,23467.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
+ED-13,DER,carril (6),25407.50,25422.50,25447.50,25462.50,15.0,15.0,3.30,5.80,positivo (der.),NO,Add Widening directo
