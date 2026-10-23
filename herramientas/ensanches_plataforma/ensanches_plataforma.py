@@ -123,6 +123,23 @@ def main():
         dxf.text((pc[0][0], pc[1][0]), '%s %s km %s' % (nombre, lado, km(c)), 'ENSANCHE_TEXTO', h=2.5, rot=ang)
         pc2 = eje.offset_points(np.array([c]), np.array([sgn * (dc + a.ancho + 5.5)]))
         dxf.text((pc2[0][0], pc2[1][0]), '%.1fx%.0f m  +%.0f m3' % (a.ancho, a.largo, costo[lado][i]), 'ENSANCHE_TEXTO', h=2.0, rot=ang)
+        # marca de ubicación rápida: círculo + cruz centrados en el eje y rótulo grande
+        R_m = 25.0
+        cx, cy = float(x[0]), float(y[0])
+        dxf.circle((cx, cy), R_m, 'ENSANCHE_MARCA')
+        dxf.circle((cx, cy), 3.0, 'ENSANCHE_MARCA')
+        tgx, tgy = float(np.cos(th[0])), float(np.sin(th[0])); nnx, nny = float(np.sin(th[0])), -float(np.cos(th[0]))
+        dxf.line((cx - 1.6 * R_m * tgx, cy - 1.6 * R_m * tgy), (cx + 1.6 * R_m * tgx, cy + 1.6 * R_m * tgy), 'ENSANCHE_MARCA')
+        dxf.line((cx - 1.6 * R_m * nnx, cy - 1.6 * R_m * nny), (cx + 1.6 * R_m * nnx, cy + 1.6 * R_m * nny), 'ENSANCHE_MARCA')
+        # flecha corta apuntando al lado del ensanche
+        pa_ = (cx + sgn * (R_m + 2) * nnx, cy + sgn * (R_m + 2) * nny); pb_ = (cx + sgn * (R_m + 14) * nnx, cy + sgn * (R_m + 14) * nny)
+        dxf.line(pa_, pb_, 'ENSANCHE_MARCA')
+        for sg2 in (1, -1):
+            dxf.line(pa_, (pa_[0] + sgn * 5 * nnx + sg2 * 4 * tgx, pa_[1] + sgn * 5 * nny + sg2 * 4 * tgy), 'ENSANCHE_MARCA')
+        pt_ = (cx + sgn * (R_m + 16) * nnx - 12 * tgx, cy + sgn * (R_m + 16) * nny - 12 * tgy)
+        dxf.text(pt_, '%s %s' % (nombre, lado), 'ENSANCHE_MARCA', h=10.0, rot=ang)
+        pt2_ = (cx + sgn * (R_m + 30) * nnx - 12 * tgx, cy + sgn * (R_m + 30) * nny - 12 * tgy)
+        dxf.text(pt2_, 'km %s' % km(c), 'ENSANCHE_MARCA', h=6.0, rot=ang)
         for tag, sk, w_ in (('INI-TRANS', s_a, 0.0), ('INI', c - half, a.ancho), ('CEN', c, a.ancho), ('FIN', c + half, a.ancho), ('FIN-TRANS', s_b, 0.0)):
             dd = float(np.interp(sk, ss, d0)) + w_
             px, py = eje.offset_points(np.array([sk]), np.array([sgn * dd]))

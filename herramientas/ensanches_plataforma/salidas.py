@@ -13,7 +13,7 @@ def km(sta):
 class DXF:
     LAYERS = [  # nombre, color ACI
         ('ENSANCHE_IZQ', 1), ('ENSANCHE_DER', 5), ('ENSANCHE_NUCLEO', 3), ('ENSANCHE_BORDE_3D', 6),
-        ('ENSANCHE_TEXTO', 2), ('ENSANCHE_PUNTOS', 4), ('ENSANCHE_ALTERNATIVAS', 8),
+        ('ENSANCHE_TEXTO', 2), ('ENSANCHE_PUNTOS', 4), ('ENSANCHE_ALTERNATIVAS', 8), ('ENSANCHE_MARCA', 1),
     ]
 
     def __init__(self):
@@ -41,6 +41,10 @@ class DXF:
     def text(self, p, txt, layer, h=2.5, rot=0.0):
         self.ent.append('0\nTEXT\n8\n%s\n10\n%.4f\n20\n%.4f\n30\n0.0\n40\n%.3f\n1\n%s\n50\n%.4f\n' % (layer, p[0], p[1], h, txt, rot))
         self._upd(p[0], p[1])
+
+    def circle(self, p, r, layer):
+        self.ent.append('0\nCIRCLE\n8\n%s\n10\n%.4f\n20\n%.4f\n30\n0.0\n40\n%.4f\n' % (layer, p[0], p[1], r))
+        self._upd(p[0] - r, p[1] - r); self._upd(p[0] + r, p[1] + r)
 
     def point(self, p, layer):
         z = p[2] if len(p) > 2 else 0.0
