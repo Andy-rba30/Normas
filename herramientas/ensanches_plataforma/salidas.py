@@ -11,9 +11,11 @@ def km(sta):
 
 # ----------------------------------------------------------------------------- DXF (AC1009 / R12)
 class DXF:
+    COLOR = {'IZQ': 1, 'DER': 5}       # un solo color por lado: izquierda rojo, derecha azul
     LAYERS = [  # nombre, color ACI
-        ('ENSANCHE_IZQ', 1), ('ENSANCHE_DER', 5), ('ENSANCHE_NUCLEO', 3), ('ENSANCHE_BORDE_3D', 6),
-        ('ENSANCHE_TEXTO', 2), ('ENSANCHE_PUNTOS', 4), ('ENSANCHE_ALTERNATIVAS', 8), ('ENSANCHE_MARCA', 1),
+        ('ENSANCHE_IZQ', 1), ('ENSANCHE_IZQ_MARCA', 1), ('ENSANCHE_IZQ_TEXTO', 1), ('ENSANCHE_IZQ_BORDE_3D', 1), ('ENSANCHE_IZQ_PUNTOS', 1),
+        ('ENSANCHE_DER', 5), ('ENSANCHE_DER_MARCA', 5), ('ENSANCHE_DER_TEXTO', 5), ('ENSANCHE_DER_BORDE_3D', 5), ('ENSANCHE_DER_PUNTOS', 5),
+        ('ENSANCHE_ALTERNATIVAS', 8),
     ]
 
     def __init__(self):
@@ -38,8 +40,12 @@ class DXF:
         self.ent.append('0\nLINE\n8\n%s\n10\n%.4f\n20\n%.4f\n30\n0.0\n11\n%.4f\n21\n%.4f\n31\n0.0\n' % (layer, p[0], p[1], q[0], q[1]))
         self._upd(p[0], p[1]); self._upd(q[0], q[1])
 
-    def text(self, p, txt, layer, h=2.5, rot=0.0):
-        self.ent.append('0\nTEXT\n8\n%s\n10\n%.4f\n20\n%.4f\n30\n0.0\n40\n%.3f\n1\n%s\n50\n%.4f\n' % (layer, p[0], p[1], h, txt, rot))
+    def text(self, p, txt, layer, h=2.5, rot=0.0, justify='L'):
+        j = {'L': 0, 'C': 1, 'R': 2}[justify]
+        e = '0\nTEXT\n8\n%s\n10\n%.4f\n20\n%.4f\n30\n0.0\n40\n%.3f\n1\n%s\n50\n%.4f\n' % (layer, p[0], p[1], h, txt, rot)
+        if j:
+            e += '72\n%d\n11\n%.4f\n21\n%.4f\n31\n0.0\n' % (j, p[0], p[1])
+        self.ent.append(e)
         self._upd(p[0], p[1])
 
     def circle(self, p, r, layer):

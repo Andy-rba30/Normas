@@ -79,11 +79,53 @@ def main():
     ok &= all(np.diff(st) >= a.gap_min - 1e-6)
     print('Verificación (alternancia, separación <= %.0f m por lado, inicio/fin, gap >= %.0f m): %s' % (a.sep_max, a.gap_min, 'OK' if ok else 'NO CUMPLE'))
 
-    # ---- geometría de cada ensanche
+    # ---- geometría de cada ensanche (numeración independiente por lado: EI-xx izquierda, ED-xx derecha)
     ens = []; puntos = []; dxf = DXF()
-    for n, (i, lado) in enumerate(seq, 1):
+    contador = {'IZQ': 0, 'DER': 0}
+
+    def marca_centro(dxf, sk, sgn, lay, etiqueta, etiqueta2, R_m=25.0, h=10.0, h2=6.0):
+        """Círculo grande + cruz centrados en el eje, flecha hacia el lado del ensanche y rótulo grande."""
+        xk, yk, thk, _ = eje.locate(np.array([sk]))
+        cx, cy = float(xk[0]), float(yk[0])
+        tgx, tgy = float(np.cos(thk[0])), float(np.sin(thk[0])); nnx, nny = float(np.sin(thk[0])), -float(np.cos(thk[0]))
+        angk = np.degrees(thk[0]) % 360
+        if 90 < angk < 270:
+            angk -= 180
+        dxf.circle((cx, cy), R_m, lay); dxf.circle((cx, cy), 3.0, lay)
+        dxf.line((cx - 1.6 * R_m * tgx, cy - 1.6 * R_m * tgy), (cx + 1.6 * R_m * tgx, cy + 1.6 * R_m * tgy), lay)
+        dxf.line((cx - 1.6 * R_m * nnx, cy - 1.6 * R_m * nny), (cx + 1.6 * R_m * nnx, cy + 1.6 * R_m * nny), lay)
+        pa_ = (cx + sgn * (R_m + 2) * nnx, cy + sgn * (R_m + 2) * nny); pb_ = (cx + sgn * (R_m + 14) * nnx, cy + sgn * (R_m + 14) * nny)
+        dxf.line(pa_, pb_, lay)
+        for sg2 in (1, -1):
+            dxf.line(pa_, (pa_[0] + sgn * 5 * nnx + sg2 * 4 * tgx, pa_[1] + sgn * 5 * nny + sg2 * 4 * tgy), lay)
+        off_t = R_m + 16
+        dxf.text((cx + sgn * off_t * nnx, cy + sgn * off_t * nny), etiqueta, lay, h=h, rot=angk, justify='C')
+        dxf.text((cx + sgn * (off_t + 1.4 * h) * nnx, cy + sgn * (off_t + 1.4 * h) * nny), etiqueta2, lay, h=h2, rot=angk, justify='C')
+
+    def marca_extremo(dxf, sk, sc, sgn, lay, etiqueta, d_ens, h=4.0):
+        """Marca de inicio/fin: línea transversal a la vía, círculo pequeño en el eje y rótulo al lado opuesto
+        del ensanche, alineado con el eje y extendido hacia afuera del ensanche (no se superpone con el centro)."""
+        xk, yk, thk, _ = eje.locate(np.array([sk]))
+        cx, cy = float(xk[0]), float(yk[0])
+        tgx, tgy = float(np.cos(thk[0])), float(np.sin(thk[0])); nnx, nny = float(np.sin(thk[0])), -float(np.cos(thk[0]))
+        angk = np.degrees(thk[0]) % 360
+        if 90 < angk < 270:
+            angk -= 180
+        dxf.circle((cx, cy), 4.0, lay)
+        dxf.line((cx - sgn * 30 * nnx, cy - sgn * 30 * nny), (cx + sgn * (d_ens + 4) * nnx, cy + sgn * (d_ens + 4) * nny), lay)
+        # rótulo en el lado opuesto, a 30 m del eje (fuera del círculo central de 25 m), extendido hacia afuera del ensanche
+        P = (cx - sgn * 31 * nnx, cy - sgn * 31 * nny)
+        afuera = np.sign(sk - sc)                               # +1 fin (hacia adelante), -1 inicio (hacia atrás)
+        u = (np.cos(np.radians(angk)), np.sin(np.radians(angk)))  # dirección de lectura del texto
+        hacia_afuera = (u[0] * tgx + u[1] * tgy) * afuera > 0
+        dxf.text(P, etiqueta, lay, h=h, rot=angk, justify='L' if hacia_afuera else 'R')
+
+    for orden, (i, lado) in enumerate(seq, 1):
+        contador[lado] += 1
+        nombre = ('EI-%02d' if lado == 'IZQ' else 'ED-%02d') % contador[lado]
         sgn = -1.0 if lado == 'IZQ' else 1.0
         borde = bi if lado == 'IZQ' else bd
+        lay = 'ENSANCHE_' + lado
         c = sta[i]; s_a, s_b = c - half - a.transicion, c + half + a.transicion
         ss = np.arange(s_a, s_b + 0.01, 2.5)
         d0 = np.abs(offsets_borde(eje, borde, ss)); d0 = np.maximum(np.nan_to_num(d0, nan=3.30), 3.30) + a.berma
@@ -94,9 +136,8 @@ def main():
         poly = list(zip(xi, yi)) + list(zip(xo[::-1], yo[::-1]))
         r = res[lado]
         corte = float(vol_corte[lado][i]); rell = float(vol_rell[lado][i])
-        nombre = 'E-%02d' % n
         x, y, th, _ = eje.locate(np.array([c]))
-        e = dict(n=n, nombre=nombre, lado=lado, sta=c, km=km(c), sta_ini_trans=s_a, sta_ini=c - half, sta_fin=c + half, sta_fin_trans=s_b,
+        e = dict(n=orden, nombre=nombre, lado=lado, sta=c, km=km(c), sta_ini_trans=s_a, sta_ini=c - half, sta_fin=c + half, sta_fin_trans=s_b,
                  x=float(x[0]), y=float(y[0]), z_ras=float(ras.elev(np.array([c]))[0]), d0=float(r['d0'][i]),
                  ancho_plataforma_ens=float(r['d0'][i] + np.abs(res['DER' if lado == 'IZQ' else 'IZQ']['d0'][i]) + a.ancho),
                  vol_add=float(costo[lado][i]), corte_add=corte, relleno_add=rell, h_borde=float(r['h_borde'][i]),
@@ -106,46 +147,31 @@ def main():
                  desc='Ensanche %s lado %s km %s (%.1f x %.0f m + transiciones %.0f m)' % (nombre, lado, km(c), a.ancho, a.largo, a.transicion),
                  poligono=[(float(px), float(py)) for px, py in poly])
         ens.append(e)
-        lay = 'ENSANCHE_' + lado
         dxf.polyline(poly, lay, closed=True)
-        dxf.polyline(list(zip(xo, yo, zo)), 'ENSANCHE_BORDE_3D', is3d=True)
-        # marcas del núcleo (25 m) y centro
-        for sk in (c - half, c + half):     # marcas de inicio y fin del núcleo (largo mínimo)
-            dk = float(np.interp(sk, ss, d0))
-            p1 = eje.offset_points(np.array([sk]), np.array([sgn * (dk - 1.0)]))
-            p2 = eje.offset_points(np.array([sk]), np.array([sgn * (dk + a.ancho + 1.0)]))
-            dxf.line((p1[0][0], p1[1][0]), (p2[0][0], p2[1][0]), 'ENSANCHE_NUCLEO')
+        dxf.polyline(list(zip(xo, yo, zo)), lay + '_BORDE_3D', is3d=True)
         ang = np.degrees(th[0]) % 360
         if 90 < ang < 270:
             ang -= 180
         dc = float(np.interp(c, ss, d0))
         pc = eje.offset_points(np.array([c]), np.array([sgn * (dc + a.ancho + 2.0)]))
-        dxf.text((pc[0][0], pc[1][0]), '%s %s km %s' % (nombre, lado, km(c)), 'ENSANCHE_TEXTO', h=2.5, rot=ang)
+        dxf.text((pc[0][0], pc[1][0]), '%s %s km %s' % (nombre, lado, km(c)), lay + '_TEXTO', h=2.5, rot=ang)
         pc2 = eje.offset_points(np.array([c]), np.array([sgn * (dc + a.ancho + 5.5)]))
-        dxf.text((pc2[0][0], pc2[1][0]), '%.1fx%.0f m  +%.0f m3' % (a.ancho, a.largo, costo[lado][i]), 'ENSANCHE_TEXTO', h=2.0, rot=ang)
-        # marca de ubicación rápida: círculo + cruz centrados en el eje y rótulo grande
-        R_m = 25.0
-        cx, cy = float(x[0]), float(y[0])
-        dxf.circle((cx, cy), R_m, 'ENSANCHE_MARCA')
-        dxf.circle((cx, cy), 3.0, 'ENSANCHE_MARCA')
-        tgx, tgy = float(np.cos(th[0])), float(np.sin(th[0])); nnx, nny = float(np.sin(th[0])), -float(np.cos(th[0]))
-        dxf.line((cx - 1.6 * R_m * tgx, cy - 1.6 * R_m * tgy), (cx + 1.6 * R_m * tgx, cy + 1.6 * R_m * tgy), 'ENSANCHE_MARCA')
-        dxf.line((cx - 1.6 * R_m * nnx, cy - 1.6 * R_m * nny), (cx + 1.6 * R_m * nnx, cy + 1.6 * R_m * nny), 'ENSANCHE_MARCA')
-        # flecha corta apuntando al lado del ensanche
-        pa_ = (cx + sgn * (R_m + 2) * nnx, cy + sgn * (R_m + 2) * nny); pb_ = (cx + sgn * (R_m + 14) * nnx, cy + sgn * (R_m + 14) * nny)
-        dxf.line(pa_, pb_, 'ENSANCHE_MARCA')
-        for sg2 in (1, -1):
-            dxf.line(pa_, (pa_[0] + sgn * 5 * nnx + sg2 * 4 * tgx, pa_[1] + sgn * 5 * nny + sg2 * 4 * tgy), 'ENSANCHE_MARCA')
-        pt_ = (cx + sgn * (R_m + 16) * nnx - 12 * tgx, cy + sgn * (R_m + 16) * nny - 12 * tgy)
-        dxf.text(pt_, '%s %s' % (nombre, lado), 'ENSANCHE_MARCA', h=10.0, rot=ang)
-        pt2_ = (cx + sgn * (R_m + 30) * nnx - 12 * tgx, cy + sgn * (R_m + 30) * nny - 12 * tgy)
-        dxf.text(pt2_, 'km %s' % km(c), 'ENSANCHE_MARCA', h=6.0, rot=ang)
+        dxf.text((pc2[0][0], pc2[1][0]), '%.1fx%.0f m  +%.0f m3' % (a.ancho, a.largo, costo[lado][i]), lay + '_TEXTO', h=2.0, rot=ang)
+        # marcas de ubicación rápida: centro (grande), inicio y fin del ensanche (medianas)
+        marca_centro(dxf, c, sgn, lay + '_MARCA', '%s %s' % (nombre, lado), 'km %s' % km(c))
+        marca_extremo(dxf, c - half, c, sgn, lay + '_MARCA', '%s INICIO km %s' % (nombre, km(c - half)), dc + a.ancho)
+        marca_extremo(dxf, c + half, c, sgn, lay + '_MARCA', '%s FIN km %s' % (nombre, km(c + half)), dc + a.ancho)
+        for tag, sk in (('inicio transicion', s_a), ('fin transicion', s_b)):      # extremos de las transiciones: tic + texto pequeño
+            dk = float(np.interp(sk, ss, d0))
+            p1 = eje.offset_points(np.array([sk]), np.array([sgn * (dk - 1.0)])); p2 = eje.offset_points(np.array([sk]), np.array([sgn * (dk + 3.0)]))
+            dxf.line((p1[0][0], p1[1][0]), (p2[0][0], p2[1][0]), lay + '_MARCA')
+            dxf.text((p2[0][0], p2[1][0]), '%s km %s' % (tag, km(sk)), lay + '_TEXTO', h=1.5, rot=ang)
         for tag, sk, w_ in (('INI-TRANS', s_a, 0.0), ('INI', c - half, a.ancho), ('CEN', c, a.ancho), ('FIN', c + half, a.ancho), ('FIN-TRANS', s_b, 0.0)):
             dd = float(np.interp(sk, ss, d0)) + w_
             px, py = eje.offset_points(np.array([sk]), np.array([sgn * dd]))
             pz = float(ras.elev(np.array([sk]))[0]) - PARAM['bombeo'] * dd
             puntos.append(('%s-%s' % (nombre, tag), 'ENS-' + lado, '%s %s %s km %s' % (nombre, lado, tag, km(sk)), float(px[0]), float(py[0]), pz))
-            dxf.point((float(px[0]), float(py[0]), pz), 'ENSANCHE_PUNTOS')
+            dxf.point((float(px[0]), float(py[0]), pz), lay + '_PUNTOS')
 
     # ---- alternativas (mínimos locales baratos no elegidos) para ajuste manual
     alternativas = []
@@ -177,10 +203,10 @@ def main():
         w = csv.writer(f)
         for n, (nm, code, desc, x, y, z) in enumerate(puntos, 1):
             w.writerow([n, '%.4f' % y, '%.4f' % x, '%.3f' % z, '%s %s' % (nm, desc)])
-    cols = ['n', 'nombre', 'lado', 'km', 'sta', 'sta_ini_trans', 'sta_ini', 'sta_fin', 'sta_fin_trans', 'x', 'y', 'z_ras', 'd0', 'ancho_plataforma_ens', 'vol_add', 'corte_add', 'relleno_add', 'h_borde', 'pend_terreno', 'seccion', 'r_min', 'tin_extrapolado']
+    cols = ['orden', 'nombre', 'lado', 'km', 'sta', 'sta_ini_trans', 'sta_ini', 'sta_fin', 'sta_fin_trans', 'x', 'y', 'z_ras', 'd0', 'ancho_plataforma_ens', 'vol_add', 'corte_add', 'relleno_add', 'h_borde', 'pend_terreno', 'seccion', 'r_min', 'tin_extrapolado']
     with open(base + '_tabla.csv', 'w', newline='', encoding='utf-8') as f:
         w = csv.writer(f); w.writerow([{'x': 'x_este', 'y': 'y_norte'}.get(c, c) for c in cols])
-        for e in ens:
+        for e in sorted(ens, key=lambda e: (e['lado'] != 'IZQ', e['sta'])):      # primero todos los IZQ, luego los DER
             w.writerow([e['n'], e['nombre'], e['lado'], e['km']] + ['%.2f' % e[c] if isinstance(e[c], float) else e[c] for c in cols[4:]])
     with open(base + '_costo_por_progresiva.csv', 'w', newline='', encoding='utf-8') as f:
         w = csv.writer(f); w.writerow(['sta', 'km', 'x_este', 'y_norte', 'R_min_nucleo', 'd0_izq', 'area_corte_izq', 'area_relleno_izq', 'vol_ensanche_izq', 'd0_der', 'area_corte_der', 'area_relleno_der', 'vol_ensanche_der'])
@@ -192,9 +218,9 @@ def main():
     with open(base + '_resumen.json', 'w', encoding='utf-8') as f:
         json.dump(dict(parametros=vars(a), seccion=PARAM, total_m3=total, ensanches=[{k: v for k, v in e.items() if k != 'poligono'} for e in ens], alternativas=alternativas), f, ensure_ascii=False, indent=1)
     print('Archivos escritos en', os.path.abspath(a.salida))
-    print('\n %-5s %-4s %-12s %-22s %8s %8s %8s %7s %7s %-8s %s' % ('N', 'Lado', 'km centro', 'tramo (inicio-fin trans.)', 'Vol m3', 'Corte', 'Relleno', 'h bor.', 'Rmin', 'Secc.', 'TIN ext.'))
+    print('\n %-3s %-6s %-4s %-12s %-22s %8s %8s %8s %7s %7s %-8s %s' % ('Ord', 'Nombre', 'Lado', 'km centro', 'tramo (inicio-fin trans.)', 'Vol m3', 'Corte', 'Relleno', 'h bor.', 'Rmin', 'Secc.', 'TIN ext.'))
     for e in ens:
-        print(' %-5s %-4s %-12s %-22s %8.0f %8.0f %8.0f %7.2f %7s %-8s %s' % (e['nombre'], e['lado'], e['km'], '%s - %s' % (km(e['sta_ini_trans']), km(e['sta_fin_trans'])), e['vol_add'], e['corte_add'], e['relleno_add'], e['h_borde'], ('%.0f' % e['r_min']) if e['r_min'] else 'tang.', e['seccion'], 'si' if e['tin_extrapolado'] else ''))
+        print(' %-3d %-6s %-4s %-12s %-22s %8.0f %8.0f %8.0f %7.2f %7s %-8s %s' % (e['n'], e['nombre'], e['lado'], e['km'], '%s - %s' % (km(e['sta_ini_trans']), km(e['sta_fin_trans'])), e['vol_add'], e['corte_add'], e['relleno_add'], e['h_borde'], ('%.0f' % e['r_min']) if e['r_min'] else 'tang.', e['seccion'], 'si' if e['tin_extrapolado'] else ''))
     return 0
 
 

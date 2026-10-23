@@ -34,7 +34,7 @@
  "ensanches": [
   {
    "n": 1,
-   "nombre": "E-01",
+   "nombre": "ED-01",
    "lado": "DER",
    "sta": 1235.0,
    "km": "1+235.00",
@@ -55,11 +55,11 @@
    "seccion": "corte",
    "r_min": 65.000000006037,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-01 lado DER km 1+235.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-01 lado DER km 1+235.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 2,
-   "nombre": "E-02",
+   "nombre": "EI-01",
    "lado": "IZQ",
    "sta": 2280.0,
    "km": "2+280.00",
@@ -80,11 +80,11 @@
    "seccion": "corte",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-02 lado IZQ km 2+280.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-01 lado IZQ km 2+280.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 3,
-   "nombre": "E-03",
+   "nombre": "ED-02",
    "lado": "DER",
    "sta": 3480.0,
    "km": "3+480.00",
@@ -105,11 +105,11 @@
    "seccion": "corte",
    "r_min": 79.999999914054,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-03 lado DER km 3+480.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-02 lado DER km 3+480.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 4,
-   "nombre": "E-04",
+   "nombre": "EI-02",
    "lado": "IZQ",
    "sta": 4465.0,
    "km": "4+465.00",
@@ -130,11 +130,11 @@
    "seccion": "corte",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-04 lado IZQ km 4+465.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-02 lado IZQ km 4+465.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 5,
-   "nombre": "E-05",
+   "nombre": "ED-03",
    "lado": "DER",
    "sta": 5755.0,
    "km": "5+755.00",
@@ -155,11 +155,11 @@
    "seccion": "relleno",
    "r_min": null,
    "tin_extrapolado": true,
-   "desc": "Ensanche E-05 lado DER km 5+755.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-03 lado DER km 5+755.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 6,
-   "nombre": "E-06",
+   "nombre": "EI-03",
    "lado": "IZQ",
    "sta": 6725.0,
    "km": "6+725.00",
@@ -180,11 +180,11 @@
    "seccion": "relleno",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-06 lado IZQ km 6+725.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-03 lado IZQ km 6+725.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 7,
-   "nombre": "E-07",
+   "nombre": "ED-04",
    "lado": "DER",
    "sta": 7980.0,
    "km": "7+980.00",
@@ -205,11 +205,11 @@
    "seccion": "corte",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-07 lado DER km 7+980.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-04 lado DER km 7+980.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 8,
-   "nombre": "E-08",
+   "nombre": "EI-04",
    "lado": "IZQ",
    "sta": 9005.0,
    "km": "9+005.00",
@@ -230,11 +230,11 @@
    "seccion": "corte",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-08 lado IZQ km 9+005.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-04 lado IZQ km 9+005.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 9,
-   "nombre": "E-09",
+   "nombre": "ED-05",
    "lado": "DER",
    "sta": 9915.0,
    "km": "9+915.00",
@@ -255,11 +255,11 @@
    "seccion": "corte",
    "r_min": 200.000000016453,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-09 lado DER km 9+915.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-05 lado DER km 9+915.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 10,
-   "nombre": "E-10",
+   "nombre": "EI-05",
    "lado": "IZQ",
    "sta": 10705.0,
    "km": "10+705.00",
@@ -280,11 +280,11 @@
    "seccion": "corte",
    "r_min": 60.00000012310301,
    "tin_extrapolado": true,
-   "desc": "Ensanche E-10 lado IZQ km 10+705.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-05 lado IZQ km 10+705.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 11,
-   "nombre": "E-11",
+   "nombre": "ED-06",
    "lado": "DER",
    "sta": 11130.0,
    "km": "11+130.00",
@@ -305,11 +305,11 @@
    "seccion": "corte",
    "r_min": 200.000000277532,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-11 lado DER km 11+130.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-06 lado DER km 11+130.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 12,
-   "nombre": "E-12",
+   "nombre": "EI-06",
    "lado": "IZQ",
    "sta": 12105.0,
    "km": "12+105.00",
@@ -330,11 +330,11 @@
    "seccion": "corte",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-12 lado IZQ km 12+105.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-06 lado IZQ km 12+105.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 13,
-   "nombre": "E-13",
+   "nombre": "ED-07",
    "lado": "DER",
    "sta": 13160.0,
    "km": "13+160.00",
@@ -355,11 +355,11 @@
    "seccion": "corte",
    "r_min": 199.999997877987,
    "tin_extrapolado": true,
-   "desc": "Ensanche E-13 lado DER km 13+160.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-07 lado DER km 13+160.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 14,
-   "nombre": "E-14",
+   "nombre": "EI-07",
    "lado": "IZQ",
    "sta": 13815.0,
    "km": "13+815.00",
@@ -380,11 +380,11 @@
    "seccion": "corte",
    "r_min": 199.999999913939,
    "tin_extrapolado": true,
-   "desc": "Ensanche E-14 lado IZQ km 13+815.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-07 lado IZQ km 13+815.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 15,
-   "nombre": "E-15",
+   "nombre": "ED-08",
    "lado": "DER",
    "sta": 14215.0,
    "km": "14+215.00",
@@ -405,11 +405,11 @@
    "seccion": "corte",
    "r_min": 80.000000013074,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-15 lado DER km 14+215.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-08 lado DER km 14+215.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 16,
-   "nombre": "E-16",
+   "nombre": "EI-08",
    "lado": "IZQ",
    "sta": 15510.0,
    "km": "15+510.00",
@@ -430,11 +430,11 @@
    "seccion": "corte",
    "r_min": 99.999999965318,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-16 lado IZQ km 15+510.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-08 lado IZQ km 15+510.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 17,
-   "nombre": "E-17",
+   "nombre": "ED-09",
    "lado": "DER",
    "sta": 16690.0,
    "km": "16+690.00",
@@ -455,11 +455,11 @@
    "seccion": "corte",
    "r_min": 119.99999997779702,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-17 lado DER km 16+690.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-09 lado DER km 16+690.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 18,
-   "nombre": "E-18",
+   "nombre": "EI-09",
    "lado": "IZQ",
    "sta": 17460.0,
    "km": "17+460.00",
@@ -480,11 +480,11 @@
    "seccion": "corte",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-18 lado IZQ km 17+460.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-09 lado IZQ km 17+460.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 19,
-   "nombre": "E-19",
+   "nombre": "ED-10",
    "lado": "DER",
    "sta": 18690.0,
    "km": "18+690.00",
@@ -505,11 +505,11 @@
    "seccion": "corte",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-19 lado DER km 18+690.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-10 lado DER km 18+690.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 20,
-   "nombre": "E-20",
+   "nombre": "EI-10",
    "lado": "IZQ",
    "sta": 19190.0,
    "km": "19+190.00",
@@ -530,11 +530,11 @@
    "seccion": "corte",
    "r_min": 79.999999606799,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-20 lado IZQ km 19+190.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-10 lado IZQ km 19+190.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 21,
-   "nombre": "E-21",
+   "nombre": "ED-11",
    "lado": "DER",
    "sta": 20875.0,
    "km": "20+875.00",
@@ -555,11 +555,11 @@
    "seccion": "corte",
    "r_min": 109.99999897659,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-21 lado DER km 20+875.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-11 lado DER km 20+875.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 22,
-   "nombre": "E-22",
+   "nombre": "EI-11",
    "lado": "IZQ",
    "sta": 21545.0,
    "km": "21+545.00",
@@ -580,11 +580,11 @@
    "seccion": "corte",
    "r_min": 199.999999523879,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-22 lado IZQ km 21+545.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-11 lado IZQ km 21+545.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 23,
-   "nombre": "E-23",
+   "nombre": "ED-12",
    "lado": "DER",
    "sta": 22215.0,
    "km": "22+215.00",
@@ -605,11 +605,11 @@
    "seccion": "corte",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-23 lado DER km 22+215.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-12 lado DER km 22+215.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 24,
-   "nombre": "E-24",
+   "nombre": "EI-12",
    "lado": "IZQ",
    "sta": 23350.0,
    "km": "23+350.00",
@@ -630,11 +630,11 @@
    "seccion": "corte",
    "r_min": 199.999998686303,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-24 lado IZQ km 23+350.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-12 lado IZQ km 23+350.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 25,
-   "nombre": "E-25",
+   "nombre": "ED-13",
    "lado": "DER",
    "sta": 24440.0,
    "km": "24+440.00",
@@ -655,11 +655,11 @@
    "seccion": "corte",
    "r_min": null,
    "tin_extrapolado": false,
-   "desc": "Ensanche E-25 lado DER km 24+440.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche ED-13 lado DER km 24+440.00 (2.5 x 25 m + transiciones 15 m)"
   },
   {
    "n": 26,
-   "nombre": "E-26",
+   "nombre": "EI-13",
    "lado": "IZQ",
    "sta": 25700.0,
    "km": "25+700.00",
@@ -680,7 +680,7 @@
    "seccion": "relleno",
    "r_min": null,
    "tin_extrapolado": true,
-   "desc": "Ensanche E-26 lado IZQ km 25+700.00 (2.5 x 25 m + transiciones 15 m)"
+   "desc": "Ensanche EI-13 lado IZQ km 25+700.00 (2.5 x 25 m + transiciones 15 m)"
   }
  ],
  "alternativas": [
