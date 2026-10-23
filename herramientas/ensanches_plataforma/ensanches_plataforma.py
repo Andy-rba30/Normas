@@ -40,6 +40,12 @@ def main():
     ap.add_argument('--paso', type=float, default=5.0, help='paso de análisis a lo largo del eje')
     ap.add_argument('--k-relleno', type=float, default=1.0, help='ponderación del relleno respecto al corte')
     ap.add_argument('--talud-corte', type=float, default=PARAM['talud_corte']); ap.add_argument('--talud-relleno', type=float, default=PARAM['talud_relleno'])
+    ap.add_argument('--dxf-interferencias', default=None, help='DXF con las interferencias (viviendas, cercos, postes, canales...) en capas')
+    ap.add_argument('--capas-interferencia', nargs='*', default=[], help='nombres exactos de capas de interferencias')
+    ap.add_argument('--patrones-interferencia', nargs='*', default=['VIVIENDA', 'CASA', 'EDIFIC', 'CERCO', 'MURO', 'POSTE', 'CANAL', 'ACEQUIA', 'TUBERIA', 'RESERVORIO', 'IGLESIA', 'COLEGIO', 'LOSA', 'PUENTE', 'ALCANTARILLA', 'BADEN', 'PONTON', 'TANQUE', 'ANTENA', 'TORRE', 'CEMENTERIO'], help='subcadenas de nombres de capa consideradas interferencia')
+    ap.add_argument('--margen-interf', type=float, default=2.0, help='margen (m) más allá de la línea de empalme del talud del ensanche')
+    ap.add_argument('--pen-interf', type=float, default=1000.0, help='penalización (m3 eq.) por ensanche con interferencia nueva (no afectada ya por la vía)')
+    ap.add_argument('--pen-interf-via', type=float, default=200.0, help='penalización (m3 eq.) si la interferencia ya está dentro de la franja de la vía base')
     a = ap.parse_args()
     PARAM['talud_corte'] = a.talud_corte; PARAM['talud_relleno'] = a.talud_relleno
     os.makedirs(a.salida, exist_ok=True)
@@ -59,6 +65,42 @@ def main():
     half = a.largo / 2
     rmin_core = radio_min_en(sta, res['curv'], np.arange(-half, half + 0.01, a.paso / 2))
     rmin_full = radio_min_en(sta, res['curv'], np.arange(-half - a.transicion, half + a.transicion + 0.01, a.paso / 2))
+    # ---- interferencias (opcional)
+    interf = None; ents = []
+    conflicto = {l: np.zeros(len(sta), bool) for l in ('IZQ', 'DER')}; conflicto_via = {l: np.zeros(len(sta), bool) for l in ('IZQ', 'DER')}
+    if a.dxf_interferencias:
+        from interferencias import cargar_interferencias, ProyectorEje, tabla_interferencias
+        ents = cargar_interferencias(a.dxf_interferencias, a.capas_interferencia, 1.0, a.patrones_interferencia)
+        proy = ProyectorEje(eje)
+        interf = tabla_interferencias(ents, proy, sta, dmax=120.0)
+        for lado in ('IZQ', 'DER'):
+            r = res[lado]
+            zona = np.where(np.isfinite(r['empalme_ens']), r['empalme_ens'], r['d0'] + a.ancho + PARAM['alcance']) + a.margen_interf
+            base = np.where(np.isfinite(r['empalme_base']), r['empalme_base'], r['d0'] + PARAM['alcance'])
+            mo = interf[lado]['min_off']
+            conflicto[lado] = mo <= zona
+            conflicto_via[lado] = mo <= base
+        capas_usadas = sorted({e['capa'] for e in ents})
+        print('Interferencias: %d entidades en %d capas: %s' % (len(ents), len(capas_usadas), ', '.join(capas_usadas)))
+        print('  progresivas con interferencia en la franja del ensanche: IZQ %d, DER %d (de ellas ya dentro de la vía base: IZQ %d, DER %d)' % (
+            conflicto['IZQ'].sum(), conflicto['DER'].sum(), (conflicto['IZQ'] & conflicto_via['IZQ']).sum(), (conflicto['DER'] & conflicto_via['DER']).sum()))
+
+    def ventana_any(flag):
+        """True si 'flag' es True en alguna progresiva de la huella (núcleo + transiciones) centrada en cada progresiva."""
+        k = int(round((half + a.transicion) / a.paso))
+        out = np.zeros(len(flag), bool)
+        for sh in range(-k, k + 1):
+            v = np.zeros(len(flag), bool)
+            if sh >= 0:
+                v[:len(flag) - sh] = flag[sh:]
+            else:
+                v[-sh:] = flag[:len(flag) + sh]
+            out |= v
+        return out
+
+    interf_nueva = {l: ventana_any(conflicto[l] & ~conflicto_via[l]) for l in ('IZQ', 'DER')}
+    interf_via = {l: ventana_any(conflicto[l] & conflicto_via[l]) for l in ('IZQ', 'DER')}
+
     # preferencia por tramos en tangente: penalización en m3 equivalentes (0 si el núcleo está todo en recta)
     nucleo_curva = np.isfinite(rmin_core)
     trans_curva = np.isfinite(rmin_full)
@@ -73,15 +115,16 @@ def main():
         v = np.where(rmin_core < a.r_min, np.nan, v)
         vol_tierra[lado] = v
         v = np.where(rmin_full < a.r_min, v * 1.2, v)      # transición dentro de curva cerrada: +20 %
-        costo[lado] = v + pen
-        print('  %s: %d progresivas candidatas de %d (%d con núcleo en tangente)' % (lado, int(np.isfinite(v).sum()), len(v), int((np.isfinite(v) & ~nucleo_curva).sum())))
+        costo[lado] = v + pen + a.pen_interf * interf_nueva[lado] + a.pen_interf_via * (interf_via[lado] & ~interf_nueva[lado])
+        print('  %s: %d progresivas candidatas de %d (%d con núcleo en tangente, %d sin interferencia)' % (lado, int(np.isfinite(v).sum()), len(v), int((np.isfinite(v) & ~nucleo_curva).sum()), int((np.isfinite(v) & ~interf_nueva[lado] & ~interf_via[lado]).sum())))
 
     seq, total = optimizar(sta, costo, a.sep_max, a.gap_min, a.borde_tramo)
     if seq is None:
         print('No se encontró una solución que cumpla las restricciones; relaje --r-min, --gap-min o --sep-max'); sys.exit(2)
     vol_total = sum(vol_tierra[l][i] for i, l in seq)
     n_tang = sum(1 for i, l in seq if not nucleo_curva[i]); n_tang_full = sum(1 for i, l in seq if not trans_curva[i])
-    print('Solución: %d ensanches, volumen adicional total estimado %.0f m3; %d con núcleo en tangente (%d con transiciones también en tangente) (%.1fs)' % (len(seq), vol_total, n_tang, n_tang_full, time.time() - t0))
+    n_int = sum(1 for i, l in seq if interf_nueva[l][i]); n_int_via = sum(1 for i, l in seq if interf_via[l][i] and not interf_nueva[l][i])
+    print('Solución: %d ensanches, volumen adicional total estimado %.0f m3; %d con núcleo en tangente (%d con transiciones también en tangente); con interferencia nueva: %d, con interferencia ya afectada por la vía: %d (%.1fs)' % (len(seq), vol_total, n_tang, n_tang_full, n_int, n_int_via, time.time() - t0))
     # verificación explícita de las restricciones normativas y de diseño
     st = [sta[i] for i, _ in seq]; ld = [l for _, l in seq]
     ok = all(ld[k] != ld[k + 1] for k in range(len(ld) - 1))
@@ -151,8 +194,25 @@ def main():
         x, y, th, _ = eje.locate(np.array([c]))
         iseg = int(np.clip(np.searchsorted(eje.sta_ini, c, side='right') - 1, 0, len(eje.segs) - 1))
         seg = eje.segs[iseg]
+        # interferencias dentro de la huella (núcleo + transiciones)
+        det = []
+        if interf is not None:
+            k0 = int(round((half + a.transicion) / a.paso))
+            idxs = set()
+            for j in range(max(0, i - k0), min(len(sta) - 1, i + k0) + 1):
+                if conflicto[lado][j]:
+                    idxs |= interf[lado]['ents'][j]
+            for k_ in sorted(idxs):
+                en = ents[k_]
+                m_ = np.isfinite(en['sta']) & (np.abs(en['sta'] - c) <= half + a.transicion + 2.5) & (np.sign(en['off']) == sgn)
+                if not m_.any():
+                    continue
+                det.append(dict(capa=en['capa'], tipo=en['tipo'], handle=en['handle'], km=km(float(en['sta'][m_][np.argmin(np.abs(en['off'][m_]))])), off_min=float(np.abs(en['off'][m_]).min()),
+                                x=float(np.mean([p[0] for p in en['vertices']])), y=float(np.mean([p[1] for p in en['vertices']]))))
+        estado_int = 'nueva' if interf_nueva[lado][i] else ('ya afectada por la via' if interf_via[lado][i] else 'ninguna')
         e = dict(n=orden, nombre=nombre, lado=lado, sta=c, km=km(c), sta_ini_trans=s_a, sta_ini=c - half, sta_fin=c + half, sta_fin_trans=s_b,
                  nucleo_tangente=not nucleo_curva[i], transiciones_tangente=not trans_curva[i],
+                 interferencia=estado_int, interf_detalle='; '.join('%s %s (km %s, a %.1f m del eje)' % (d_['capa'], d_['tipo'], d_['km'], d_['off_min']) for d_ in det), interferencias=det,
                  tangente_km='%s - %s (%.0f m)' % (km(seg[1]), km(seg[1] + seg[2]), seg[2]) if seg[0] == 'L' else '',
                  costo_opt=float(costo[lado][i]),
                  x=float(x[0]), y=float(y[0]), z_ras=float(ras.elev(np.array([c]))[0]), d0=float(r['d0'][i]),
@@ -166,6 +226,14 @@ def main():
         ens.append(e)
         dxf.polyline(poly, lay, closed=True)
         dxf.polyline(list(zip(xo, yo, zo)), lay + '_BORDE_3D', is3d=True)
+        # línea estimada de empalme del talud (pie o cabeza) de la sección ensanchada = franja afectada
+        emp = np.interp(ss, sta, np.where(np.isfinite(r['empalme_ens']), r['empalme_ens'], np.nan))
+        if np.isfinite(emp).all():
+            xe_, ye_ = eje.offset_points(ss, sgn * np.maximum(emp, d0 + wss))
+            dxf.polyline(list(zip(xe_, ye_)), lay + '_TALUD')
+        for d_ in det:
+            dxf.circle((d_['x'], d_['y']), 3.0, 'ENSANCHE_INTERFERENCIA')
+            dxf.text((d_['x'] + 3.5, d_['y']), '%s %s: %s' % (nombre, estado_int.upper(), d_['capa']), 'ENSANCHE_INTERFERENCIA', h=1.5)
         ang = np.degrees(th[0]) % 360
         if 90 < ang < 270:
             ang -= 180
@@ -220,24 +288,24 @@ def main():
         w = csv.writer(f)
         for n, (nm, code, desc, x, y, z) in enumerate(puntos, 1):
             w.writerow([n, '%.4f' % y, '%.4f' % x, '%.3f' % z, '%s %s' % (nm, desc)])
-    cols = ['orden', 'nombre', 'lado', 'km', 'sta', 'sta_ini_trans', 'sta_ini', 'sta_fin', 'sta_fin_trans', 'nucleo_tangente', 'transiciones_tangente', 'tangente_km', 'r_min', 'x', 'y', 'z_ras', 'd0', 'ancho_plataforma_ens', 'vol_add', 'corte_add', 'relleno_add', 'h_borde', 'pend_terreno', 'seccion', 'tin_extrapolado']
+    cols = ['orden', 'nombre', 'lado', 'km', 'sta', 'sta_ini_trans', 'sta_ini', 'sta_fin', 'sta_fin_trans', 'nucleo_tangente', 'transiciones_tangente', 'tangente_km', 'r_min', 'interferencia', 'interf_detalle', 'x', 'y', 'z_ras', 'd0', 'ancho_plataforma_ens', 'vol_add', 'corte_add', 'relleno_add', 'h_borde', 'pend_terreno', 'seccion', 'tin_extrapolado']
     with open(base + '_tabla.csv', 'w', newline='', encoding='utf-8') as f:
         w = csv.writer(f); w.writerow([{'x': 'x_este', 'y': 'y_norte'}.get(c, c) for c in cols])
         for e in sorted(ens, key=lambda e: (e['lado'] != 'IZQ', e['sta'])):      # primero todos los IZQ, luego los DER
             w.writerow([e['n'], e['nombre'], e['lado'], e['km']] + ['%.2f' % e[c] if isinstance(e[c], float) else e[c] for c in cols[4:]])
     with open(base + '_costo_por_progresiva.csv', 'w', newline='', encoding='utf-8') as f:
-        w = csv.writer(f); w.writerow(['sta', 'km', 'x_este', 'y_norte', 'R_min_nucleo', 'R_min_con_transiciones', 'penalizacion_curva_m3eq', 'd0_izq', 'area_corte_izq', 'area_relleno_izq', 'vol_ensanche_izq', 'd0_der', 'area_corte_der', 'area_relleno_der', 'vol_ensanche_der'])
+        w = csv.writer(f); w.writerow(['sta', 'km', 'x_este', 'y_norte', 'R_min_nucleo', 'R_min_con_transiciones', 'penalizacion_curva_m3eq', 'd0_izq', 'area_corte_izq', 'area_relleno_izq', 'vol_ensanche_izq', 'interf_izq', 'd0_der', 'area_corte_der', 'area_relleno_der', 'vol_ensanche_der', 'interf_der'])
         for i in range(len(sta)):
             w.writerow(['%.1f' % sta[i], km(sta[i]), '%.3f' % res['x'][i], '%.3f' % res['y'][i], '%.0f' % rmin_core[i] if np.isfinite(rmin_core[i]) else 'tangente', '%.0f' % rmin_full[i] if np.isfinite(rmin_full[i]) else 'tangente', '%.0f' % pen[i]] +
-                       sum([['%.2f' % res[l]['d0'][i], ('%.2f' % res[l]['corte_add'][i]) if np.isfinite(res[l]['corte_add'][i]) else '', ('%.2f' % res[l]['relleno_add'][i]) if np.isfinite(res[l]['relleno_add'][i]) else '', ('%.0f' % vol_tierra[l][i]) if np.isfinite(vol_tierra[l][i]) else ''] for l in ('IZQ', 'DER')], []))
+                       sum([['%.2f' % res[l]['d0'][i], ('%.2f' % res[l]['corte_add'][i]) if np.isfinite(res[l]['corte_add'][i]) else '', ('%.2f' % res[l]['relleno_add'][i]) if np.isfinite(res[l]['relleno_add'][i]) else '', ('%.0f' % vol_tierra[l][i]) if np.isfinite(vol_tierra[l][i]) else '', 'nueva' if interf_nueva[l][i] else ('via' if interf_via[l][i] else '')] for l in ('IZQ', 'DER')], []))
     x, y, _, _ = eje.locate(sta)
     escribir_svg(base + '_vista_previa.svg', (x, y), ens, sta, vol_tierra, [i for i, _ in seq], eje.length, tangente=~nucleo_curva)
     with open(base + '_resumen.json', 'w', encoding='utf-8') as f:
-        json.dump(dict(parametros=vars(a), seccion=PARAM, total_m3=vol_total, total_costo_opt=total, n_nucleo_tangente=n_tang, n_todo_tangente=n_tang_full, ensanches=[{k: v for k, v in e.items() if k != 'poligono'} for e in ens], alternativas=alternativas), f, ensure_ascii=False, indent=1)
+        json.dump(dict(parametros=vars(a), seccion=PARAM, total_m3=vol_total, total_costo_opt=total, n_nucleo_tangente=n_tang, n_todo_tangente=n_tang_full, n_interferencia_nueva=n_int, n_interferencia_via=n_int_via, capas_interferencia=sorted({e_['capa'] for e_ in ents}), ensanches=[{k: v for k, v in e.items() if k != 'poligono'} for e in ens], alternativas=alternativas), f, ensure_ascii=False, indent=1)
     print('Archivos escritos en', os.path.abspath(a.salida))
-    print('\n %-3s %-6s %-4s %-12s %-22s %-7s %-7s %8s %8s %8s %7s %-8s %s' % ('Ord', 'Nombre', 'Lado', 'km centro', 'tramo (inicio-fin trans.)', 'Nucleo', 'Trans.', 'Vol m3', 'Corte', 'Relleno', 'h bor.', 'Secc.', 'TIN ext.'))
+    print('\n %-3s %-6s %-4s %-12s %-22s %-7s %-7s %8s %8s %8s %7s %-8s %-8s %s' % ('Ord', 'Nombre', 'Lado', 'km centro', 'tramo (inicio-fin trans.)', 'Nucleo', 'Trans.', 'Vol m3', 'Corte', 'Relleno', 'h bor.', 'Secc.', 'TIN ext.', 'Interferencia'))
     for e in ens:
-        print(' %-3d %-6s %-4s %-12s %-22s %-7s %-7s %8.0f %8.0f %8.0f %7.2f %-8s %s' % (e['n'], e['nombre'], e['lado'], e['km'], '%s - %s' % (km(e['sta_ini_trans']), km(e['sta_fin_trans'])), 'tang.' if e['nucleo_tangente'] else 'R=%.0f' % e['r_min'], 'tang.' if e['transiciones_tangente'] else 'curva', e['vol_add'], e['corte_add'], e['relleno_add'], e['h_borde'], e['seccion'], 'si' if e['tin_extrapolado'] else ''))
+        print(' %-3d %-6s %-4s %-12s %-22s %-7s %-7s %8.0f %8.0f %8.0f %7.2f %-8s %-8s %s' % (e['n'], e['nombre'], e['lado'], e['km'], '%s - %s' % (km(e['sta_ini_trans']), km(e['sta_fin_trans'])), 'tang.' if e['nucleo_tangente'] else 'R=%.0f' % e['r_min'], 'tang.' if e['transiciones_tangente'] else 'curva', e['vol_add'], e['corte_add'], e['relleno_add'], e['h_borde'], e['seccion'], 'si' if e['tin_extrapolado'] else '', (e['interferencia'] + (': ' + e['interf_detalle'] if e['interf_detalle'] else '')) if e['interferencia'] != 'ninguna' else '-'))
     return 0
 
 

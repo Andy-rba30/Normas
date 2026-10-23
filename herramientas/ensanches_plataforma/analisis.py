@@ -46,7 +46,7 @@ def costos_por_progresiva(eje, ras, tn, off_izq, off_der, sta, w, P=PARAM):
         X = x[:, None] + sgn * O * nx[:, None]
         Y = y[:, None] + sgn * O * ny[:, None]
         Z = tn.elev(X.ravel(), Y.ravel()).reshape(O.shape)
-        cols = dict(corte_add=[], relleno_add=[], h_borde=[], pend_terreno=[], muro=[], corte_base=[], empalme_ens=[], extrapolado=[])
+        cols = dict(corte_add=[], relleno_add=[], h_borde=[], pend_terreno=[], muro=[], corte_base=[], empalme_ens=[], empalme_base=[], extrapolado=[])
         for i in range(len(sta)):
             zrow = Z[i]
             r = areas_ensanche(d0[i], zr[i], lambda o, zrow=zrow, oi=O[i]: np.interp(o, oi, zrow, left=np.nan, right=np.nan), w, P)
